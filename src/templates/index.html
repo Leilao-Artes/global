@@ -1,124 +1,126 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Leilão Futurista</title>
-    <!-- Tailwind CSS via CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Chart.js via CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-    <style>
-        /* Custom Scrollbar para a lista de lances */
-        /* Apenas visível em navegadores baseados em WebKit */
-        .scrollbar-thin::-webkit-scrollbar {
-            width: 8px;
-        }
+{% extends "base.html" %}
 
-        .scrollbar-thumb-rounded::-webkit-scrollbar-thumb {
-            background-color: rgba(255, 223, 87, 0.3); /* Amarelo luxo suave */
-            border-radius: 4px;
-        }
+{% block title %}{{ leilao.titulo }} - Inspeção de Leilão de Luxo{% endblock %}
 
-        .scrollbar-thumb-rounded::-webkit-scrollbar-thumb:hover {
-            background-color: rgba(255, 223, 87, 0.5); /* Amarelo luxo mais intenso */
-        }
-    </style>
-</head>
-<body class="bg-gray-900 text-white font-roboto">
-
-    <!-- Cabeçalho -->
-    <header class="flex justify-between items-center bg-gray-800 px-6 py-4 sticky top-0 z-50">
-        <div class="text-2xl font-bold text-yellow-500">LeilãoX</div>
-        <nav class="hidden md:flex space-x-6">
-            <a href="#" class="hover:text-yellow-500 transition-colors">Categorias</a>
-            <a href="#" class="hover:text-yellow-500 transition-colors">Histórico</a>
-            <a href="#" class="hover:text-yellow-500 transition-colors">Perfil</a>
-            <a href="#" class="hover:text-yellow-500 transition-colors">Suporte</a>
-        </nav>
-        <div class="text-xl text-yellow-400" id="tempo-restante">10:00</div>
-    </header>
-
-    <!-- Conteúdo Principal -->
-    <main class="flex flex-col lg:flex-row px-6 py-4 space-y-6 lg:space-y-0 lg:space-x-6">
-        <!-- Área de Destaque do Item -->
-        <section class="flex-1 bg-gray-800 rounded-lg p-6 flex flex-col lg:flex-row gap-6">
-            <div class="flex-1">
-                <img src="https://via.placeholder.com/400" alt="Item em Destaque" class="w-full h-auto rounded-lg transform transition-transform duration-300 hover:scale-105">
-            </div>
-            <div class="flex-1 flex flex-col justify-between">
-                <div>
-                    <h1 class="text-3xl font-semibold text-yellow-500">Objeto do Leilão</h1>
-                    <p class="mt-4 text-gray-300">Descrição detalhada do item do leilão, incluindo especificações técnicas e história.</p>
-                </div>
-                <div class="mt-6 flex space-x-4">
-                    <button class="bg-yellow-500 hover:bg-yellow-600 text-white py-2 px-4 rounded-lg transition-colors">Dar Lance</button>
-                    <button class="bg-gray-700 hover:bg-gray-600 text-white py-2 px-4 rounded-lg transition-colors flex items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
-                            <path d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" />
-                        </svg>
-                        Favoritar
-                    </button>
+{% block content %}
+<main class="py-10">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="lg:grid lg:grid-cols-12 lg:gap-x-8">
+            <!-- Seção de Imagens -->
+            <div class="lg:col-span-7">
+                <div class="grid grid-cols-1 gap-4">
+                    <!-- Imagem Principal -->
+                    <div class="aspect-w-16 aspect-h-9 overflow-hidden rounded-lg">
+                        <img src="https://images.unsplash.com/photo-1523170335258-f5ed11844a49?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" alt="{{ leilao.titulo }}" class="object-cover w-full h-full cursor-pointer" onclick="openModal(this.src, '{{ leilao.titulo }}')">
+                    </div>
+                    <!-- Grade de Imagens Detalhadas -->
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                        {% for detalhe in leilao.detalhes_imagens %}
+                        <div class="aspect-w-1 aspect-h-1 overflow-hidden rounded-lg">
+                            <img src="{{ detalhe.url }}" alt="{{ detalhe.alt }}" class="object-cover w-full h-full hover:opacity-75 transition-opacity duration-300 cursor-pointer" onclick="openModal(this.src, '{{ detalhe.alt }}')">
+                        </div>
+                        {% endfor %}
+                    </div>
                 </div>
             </div>
-        </section>
 
-        <!-- Seção de Lances em Tempo Real -->
-        <section class="flex-1 bg-gray-800 rounded-lg p-6 space-y-6">
-            <div>
-                <h2 class="text-2xl font-semibold text-yellow-500 mb-4">Evolução dos Lances</h2>
-                <canvas id="graficoLances" class="bg-gray-700 rounded-lg"></canvas>
+            <!-- Seção de Detalhes do Leilão -->
+            <div class="mt-10 lg:col-span-5 lg:mt-0">
+                <h1 class="text-3xl font-bold tracking-tight text-gray-900">{{ leilao.titulo }}</h1>
+                <div class="mt-4">
+                    <h2 class="sr-only">Informações do Leilão</h2>
+                    <p class="text-lg text-gray-900">Lance Atual: <span class="font-semibold text-gold-600">{{ leilao.lance_atual }}</span></p>
+                </div>
+                <div class="mt-4">
+                    <div class="flex items-center">
+                        <div class="flex items-center">
+                            <!-- Estrelas de Avaliação -->
+                            {% for i in range(1, 6) %}
+                            <svg class="text-gold-500 h-5 w-5 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                <path fill-rule="evenodd" d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z" clip-rule="evenodd" />
+                            </svg>
+                            {% endfor %}
+                        </div>
+                        <p class="ml-3 text-sm text-gray-700">{{ leilao.media_avaliacoes }} ({{ leilao.avaliacoes }} avaliações)</p>
+                    </div>
+                </div>
+                <div class="mt-6">
+                    <h3 class="sr-only">Descrição</h3>
+                    <div class="space-y-6 text-base text-gray-700">
+                        <p>{{ leilao.descricao }}</p>
+                    </div>
+                </div>
+                <div class="mt-8">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-sm font-medium text-gray-900">Tempo Restante</h3>
+                        <p class="text-sm font-medium text-gray-500" id="countdown">{{ leilao.tempo_restante }}</p>
+                    </div>
+                    <div class="mt-2 h-2 w-full bg-gray-200 rounded-full overflow-hidden">
+                        <div class="h-full bg-gold-500 rounded-full" style="width: 25%"></div>
+                    </div>
+                </div>
+                <div class="mt-10">
+                    <h3 class="text-sm font-medium text-gray-900">Dar Lance</h3>
+                    <form class="mt-4" action="#" method="POST">
+                        <div class="flex rounded-md shadow-sm">
+                            <span class="inline-flex items-center rounded-l-md border border-r-0 border-gray-300 bg-gray-50 px-3 text-gray-500 sm:text-sm">
+                                €
+                            </span>
+                            <input type="number" name="price" id="price" class="block w-full min-w-0 flex-1 rounded-none rounded-r-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gold-600 sm:text-sm sm:leading-6" placeholder="0.00" aria-describedby="price-currency" required>
+                        </div>
+                        <button type="submit" class="mt-6 flex w-full items-center justify-center rounded-md border border-transparent bg-gold-600 px-8 py-3 text-base font-medium text-white hover:bg-gold-700 focus:outline-none focus:ring-2 focus:ring-gold-500 focus:ring-offset-2">Dar Lance</button>
+                    </form>
+                </div>
+                <div class="mt-10 border-t border-gray-200 pt-10">
+                    <h3 class="text-sm font-medium text-gray-900">Histórico de Lances</h3>
+                    <div class="mt-4 flow-root">
+                        <ul role="list" class="-my-4 divide-y divide-gray-200">
+                            {% for lance in leilao.historico_lances %}
+                            <li class="flex items-center py-4">
+                                <img src="{{ lance.imagem }}" alt="{{ lance.nome }}" class="h-10 w-10 rounded-full">
+                                <div class="ml-4">
+                                    <p class="text-sm font-medium text-gray-900">{{ lance.nome }}</p>
+                                    <p class="text-sm text-gray-500">{{ lance.valor }} - {{ lance.tempo }}</p>
+                                </div>
+                            </li>
+                            {% endfor %}
+                            <!-- Adicione mais lances conforme necessário -->
+                        </ul>
+                    </div>
+                </div>
             </div>
-            <div class="bg-gray-700 rounded-lg p-4 max-h-96 overflow-y-auto scrollbar-thin scrollbar-thumb-rounded">
-                <h2 class="text-2xl font-semibold text-yellow-500 mb-4">Lances Recentes</h2>
-                <ul id="lista-lances" class="space-y-2">
-                    <li class="border-b border-gray-600 pb-2">
-                        <strong>Usuário1</strong> deu um lance de <strong>R$ 1.000</strong> há 2 minutos
-                    </li>
-                    <li class="border-b border-gray-600 pb-2">
-                        <strong>Usuário2</strong> deu um lance de <strong>R$ 1.200</strong> há 1 minuto
-                    </li>
-                </ul>
-            </div>
-        </section>
+        </div>
+    </div>
 
-        <!-- Barra Lateral -->
-        <aside class="hidden lg:block lg:w-1/4 bg-gray-800 rounded-lg p-6 space-y-6">
-            <div class="text-center">
-                <img src="https://via.placeholder.com/100" alt="Avatar do Usuário" class="w-24 h-24 rounded-full mx-auto">
-                <h3 class="mt-4 text-xl font-semibold text-yellow-500">Nome do Usuário</h3>
-                <p class="mt-2 text-gray-300">Saldo: R$ 5.000</p>
-            </div>
-            <div>
-                <h3 class="text-xl font-semibold text-yellow-500 mb-4">Itens Sugeridos</h3>
-                <ul class="space-y-2">
-                    <li class="bg-gray-700 p-2 rounded-lg hover:bg-gray-600 transition-colors cursor-pointer">Item 1</li>
-                    <li class="bg-gray-700 p-2 rounded-lg hover:bg-gray-600 transition-colors cursor-pointer">Item 2</li>
-                    <li class="bg-gray-700 p-2 rounded-lg hover:bg-gray-600 transition-colors cursor-pointer">Item 3</li>
-                </ul>
-            </div>
-            <div>
-                <h3 class="text-xl font-semibold text-yellow-500 mb-4">Suporte ao Vivo</h3>
-                <button class="w-full bg-yellow-500 hover:bg-yellow-600 text-gray-900 py-2 px-4 rounded-lg transition-colors flex items-center justify-center">
-                    Iniciar Chat
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
-                        <path d="M2 5a2 2 0 012-2h12a2 2 0 012 2v10a2 2 0 01-2 2H6l-4 4V5z" />
-                    </svg>
-                </button>
-            </div>
-        </aside>
-    </main>
+    <!-- Modal de Imagem -->
+    <div id="imageModal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 hidden">
+        <div class="relative">
+            <button onclick="closeModal()" class="absolute top-0 right-0 mt-4 mr-4 text-white text-3xl font-bold">&times;</button>
+            <img id="modalImage" src="" alt="" class="max-w-full max-h-screen rounded-lg">
+            <p id="modalAlt" class="mt-2 text-center text-white text-lg"></p>
+        </div>
+    </div>
 
-    <!-- Rodapé -->
-    <footer class="bg-gray-800 text-center py-4 fixed bottom-0 w-full">
-        <p>&copy; 2024 LeilãoX. Todos os direitos reservados.</p>
-    </footer>
-
-    <!-- Scripts JavaScript -->
+    <!-- Scripts para o Modal -->
     <script>
-        // Aqui, o script permanece inalterado
+        function openModal(src, alt) {
+            document.getElementById('modalImage').src = src;
+            document.getElementById('modalAlt').innerText = alt;
+            document.getElementById('imageModal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('imageModal').classList.add('hidden');
+            document.getElementById('modalImage').src = '';
+            document.getElementById('modalAlt').innerText = '';
+        }
+
+        // Fechar o modal ao clicar fora da imagem
+        window.onclick = function(event) {
+            const modal = document.getElementById('imageModal');
+            if (event.target == modal) {
+                closeModal();
+            }
+        }
     </script>
-</body>
-</html>
+{% endblock %}

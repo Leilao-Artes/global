@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="pt-PT" class="h-full bg-gray-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Inspeção de Leilão de Luxo{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        gold: {
+                            50: '#FFFBEA',
+                            100: '#FFF6D6',
+                            200: '#FFE7A0',
+                            300: '#FFD86A',
+                            400: '#FFC934',
+                            500: '#FFBB00',
+                            600: '#E6A800',
+                            700: '#B38600',
+                            800: '#806100',
+                            900: '#4D3A00',
+                        },
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                },
+            },
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Estilização Personalizada da Scrollbar -->
+    <style>
+        /* Scrollbar para navegadores WebKit (Chrome, Safari) */
+        ::-webkit-scrollbar {
+            width: 12px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background-color: #FFBB00; /* Cor do thumb */
+            border-radius: 6px;
+            border: 3px solid #f1f1f1; /* Espaço entre o thumb e o track */
+        }
+
+        /* Scrollbar para Firefox */
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: #FFBB00 #f1f1f1;
+        }
+
+        /* Ajuste para garantir que o conteúdo não seja sobreposto pelo footer fixo */
+        body {
+            padding-bottom: 64px; /* Altura do footer (ajuste conforme necessário) */
+        }
+    </style>
+</head>
+<body class="h-full font-sans antialiased">
+    <div class="min-h-full bg-gradient-to-br from-gray-50 to-gold-50">
+        <!-- Cabeçalho -->
+        <header class="bg-white shadow-sm fixed top-0 left-0 right-0 z-50">
+            <nav class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                <div class="flex h-16 justify-between items-center">
+                    <div class="flex items-center">
+                        <!-- Removido o logo da navbar -->
+                        <div class="hidden md:block">
+                            <div class="ml-10 flex items-baseline space-x-4">
+                                <a href="#" class="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium">Leilões</a>
+                                <a href="#" class="text-gray-900 px-3 py-2 rounded-md text-sm font-medium" aria-current="page">Inspeção</a>
+                                <a href="#" class="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium">Meus Lances</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex items-center">
+                        <button type="button" class="rounded-full bg-white p-1 text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gold-500 focus:ring-offset-2">
+                            <span class="sr-only">Ver notificações</span>
+                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
+                            </svg>
+                        </button>
+                        <div class="ml-3 relative">
+                            <div>
+                                <button type="button" class="flex rounded-full bg-white text-sm focus:outline-none focus:ring-2 focus:ring-gold-500 focus:ring-offset-2" id="user-menu-button" aria-expanded="false" aria-haspopup="true">
+                                    <span class="sr-only">Abrir menu do utilizador</span>
+                                    <img class="h-8 w-8 rounded-full" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt="Foto de Perfil">
+                                </button>
+                            </div>
+                            <!-- Menu do utilizador pode ser adicionado aqui -->
+                        </div>
+                    </div>
+                </div>
+            </nav>
+        </header>
+
+        <!-- Conteúdo Principal -->
+        <main class="pt-16 pb-16"> <!-- Adicionado padding-top para compensar a navbar fixa -->
+            {% block content %}
+            <!-- O conteúdo específico de cada página será inserido aqui -->
+            {% endblock %}
+        </main>
+    </div>
+
+    <!-- Rodapé Fixo -->
+    <footer class="fixed bottom-0 left-0 right-0 bg-white shadow-inner z-40">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div class="border-t border-gray-200 py-4 text-center text-sm text-gray-500">
+                &copy; 2024 Leilões de Luxo. Todos os direitos reservados.
+            </div>
+        </div>
+    </footer>
+
+    <!-- Script do Contador Regressivo -->
+    <script>
+        // Simples contador regressivo
+        function updateCountdown() {
+            const countdownElement = document.getElementById('countdown');
+            if (!countdownElement) return;
+            let time = countdownElement.innerText.split(':').map(Number);
+            let [hours, minutes, seconds] = time;
+
+            if (seconds > 0) {
+                seconds--;
+            } else if (minutes > 0) {
+                minutes--;
+                seconds = 59;
+            } else if (hours > 0) {
+                hours--;
+                minutes = 59;
+                seconds = 59;
+            }
+
+            countdownElement.innerText = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+            if (hours === 0 && minutes === 0 && seconds === 0) {
+                clearInterval(countdownInterval);
+                alert('O leilão terminou!');
+            }
+        }
+
+        const countdownInterval = setInterval(updateCountdown, 1000);
+    </script>
+</body>
+</html>
