@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leilão Futurista</title>
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js via CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* Custom Scrollbar para a lista de lances */
+        /* Apenas visível em navegadores baseados em WebKit */
+        .scrollbar-thin::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .scrollbar-thumb-rounded::-webkit-scrollbar-thumb {
+            background-color: rgba(255, 223, 87, 0.3); /* Amarelo luxo suave */
+            border-radius: 4px;
+        }
+
+        .scrollbar-thumb-rounded::-webkit-scrollbar-thumb:hover {
+            background-color: rgba(255, 223, 87, 0.5); /* Amarelo luxo mais intenso */
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white font-roboto">
+
+    <!-- Cabeçalho -->
+    <header class="flex justify-between items-center bg-gray-800 px-6 py-4 sticky top-0 z-50">
+        <div class="text-2xl font-bold text-yellow-500">LeilãoX</div>
+        <nav class="hidden md:flex space-x-6">
+            <a href="#" class="hover:text-yellow-500 transition-colors">Categorias</a>
+            <a href="#" class="hover:text-yellow-500 transition-colors">Histórico</a>
+            <a href="#" class="hover:text-yellow-500 transition-colors">Perfil</a>
+            <a href="#" class="hover:text-yellow-500 transition-colors">Suporte</a>
+        </nav>
+        <div class="text-xl text-yellow-400" id="tempo-restante">10:00</div>
+    </header>
+
+    <!-- Conteúdo Principal -->
+    <main class="flex flex-col lg:flex-row px-6 py-4 space-y-6 lg:space-y-0 lg:space-x-6">
+        <!-- Área de Destaque do Item -->
+        <section class="flex-1 bg-gray-800 rounded-lg p-6 flex flex-col lg:flex-row gap-6">
+            <div class="flex-1">
+                <img src="https://via.placeholder.com/400" alt="Item em Destaque" class="w-full h-auto rounded-lg transform transition-transform duration-300 hover:scale-105">
+            </div>
+            <div class="flex-1 flex flex-col justify-between">
+                <div>
+                    <h1 class="text-3xl font-semibold text-yellow-500">Objeto do Leilão</h1>
+                    <p class="mt-4 text-gray-300">Descrição detalhada do item do leilão, incluindo especificações técnicas e história.</p>
+                </div>
+                <div class="mt-6 flex space-x-4">
+                    <button class="bg-yellow-500 hover:bg-yellow-600 text-white py-2 px-4 rounded-lg transition-colors">Dar Lance</button>
+                    <button class="bg-gray-700 hover:bg-gray-600 text-white py-2 px-4 rounded-lg transition-colors flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" />
+                        </svg>
+                        Favoritar
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Seção de Lances em Tempo Real -->
+        <section class="flex-1 bg-gray-800 rounded-lg p-6 space-y-6">
+            <div>
+                <h2 class="text-2xl font-semibold text-yellow-500 mb-4">Evolução dos Lances</h2>
+                <canvas id="graficoLances" class="bg-gray-700 rounded-lg"></canvas>
+            </div>
+            <div class="bg-gray-700 rounded-lg p-4 max-h-96 overflow-y-auto scrollbar-thin scrollbar-thumb-rounded">
+                <h2 class="text-2xl font-semibold text-yellow-500 mb-4">Lances Recentes</h2>
+                <ul id="lista-lances" class="space-y-2">
+                    <li class="border-b border-gray-600 pb-2">
+                        <strong>Usuário1</strong> deu um lance de <strong>R$ 1.000</strong> há 2 minutos
+                    </li>
+                    <li class="border-b border-gray-600 pb-2">
+                        <strong>Usuário2</strong> deu um lance de <strong>R$ 1.200</strong> há 1 minuto
+                    </li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Barra Lateral -->
+        <aside class="hidden lg:block lg:w-1/4 bg-gray-800 rounded-lg p-6 space-y-6">
+            <div class="text-center">
+                <img src="https://via.placeholder.com/100" alt="Avatar do Usuário" class="w-24 h-24 rounded-full mx-auto">
+                <h3 class="mt-4 text-xl font-semibold text-yellow-500">Nome do Usuário</h3>
+                <p class="mt-2 text-gray-300">Saldo: R$ 5.000</p>
+            </div>
+            <div>
+                <h3 class="text-xl font-semibold text-yellow-500 mb-4">Itens Sugeridos</h3>
+                <ul class="space-y-2">
+                    <li class="bg-gray-700 p-2 rounded-lg hover:bg-gray-600 transition-colors cursor-pointer">Item 1</li>
+                    <li class="bg-gray-700 p-2 rounded-lg hover:bg-gray-600 transition-colors cursor-pointer">Item 2</li>
+                    <li class="bg-gray-700 p-2 rounded-lg hover:bg-gray-600 transition-colors cursor-pointer">Item 3</li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="text-xl font-semibold text-yellow-500 mb-4">Suporte ao Vivo</h3>
+                <button class="w-full bg-yellow-500 hover:bg-yellow-600 text-gray-900 py-2 px-4 rounded-lg transition-colors flex items-center justify-center">
+                    Iniciar Chat
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M2 5a2 2 0 012-2h12a2 2 0 012 2v10a2 2 0 01-2 2H6l-4 4V5z" />
+                    </svg>
+                </button>
+            </div>
+        </aside>
+    </main>
+
+    <!-- Rodapé -->
+    <footer class="bg-gray-800 text-center py-4 fixed bottom-0 w-full">
+        <p>&copy; 2024 LeilãoX. Todos os direitos reservados.</p>
+    </footer>
+
+    <!-- Scripts JavaScript -->
+    <script>
+        // Aqui, o script permanece inalterado
+    </script>
+</body>
+</html>
