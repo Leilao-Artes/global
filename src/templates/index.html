@@ -10,14 +10,14 @@
             <div class="lg:col-span-7">
                 <div class="grid grid-cols-1 gap-4">
                     <!-- Imagem Principal -->
-                    <div class="aspect-w-16 aspect-h-9 overflow-hidden rounded-lg">
-                        <img src="https://images.unsplash.com/photo-1523170335258-f5ed11844a49?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" alt="{{ leilao.titulo }}" class="object-cover w-full h-full cursor-pointer" onclick="openModal(this.src, '{{ leilao.titulo }}')">
+                    <div class="aspect-w-16 aspect-h-9 overflow-hidden rounded-lg shadow-lg">
+                        <img src="{{ leilao.detalhes_imagens[0].url }}" alt="{{ leilao.detalhes_imagens[0].alt }}" class="object-cover w-full h-full cursor-pointer transition-transform duration-300 hover:scale-105" onclick="openModal(this.src, '{{ leilao.detalhes_imagens[0].alt }}')">
                     </div>
                     <!-- Grade de Imagens Detalhadas -->
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                        {% for detalhe in leilao.detalhes_imagens %}
-                        <div class="aspect-w-1 aspect-h-1 overflow-hidden rounded-lg">
-                            <img src="{{ detalhe.url }}" alt="{{ detalhe.alt }}" class="object-cover w-full h-full hover:opacity-75 transition-opacity duration-300 cursor-pointer" onclick="openModal(this.src, '{{ detalhe.alt }}')">
+                        {% for detalhe in leilao.detalhes_imagens[1:] %}
+                        <div class="aspect-w-1 aspect-h-1 overflow-hidden rounded-lg shadow-md">
+                            <img src="{{ detalhe.url }}" alt="{{ detalhe.alt }}" class="object-cover w-full h-full hover:opacity-75 transition-all duration-300 cursor-pointer hover:scale-105" onclick="openModal(this.src, '{{ detalhe.alt }}')">
                         </div>
                         {% endfor %}
                     </div>
@@ -29,13 +29,12 @@
                 <h1 class="text-3xl font-bold tracking-tight text-gray-900">{{ leilao.titulo }}</h1>
                 <div class="mt-4">
                     <h2 class="sr-only">Informações do Leilão</h2>
-                    <p class="text-lg text-gray-900">Lance Atual: <span class="font-semibold text-gold-600">{{ leilao.lance_atual }}</span></p>
+                    <p class="text-lg text-gray-900">Lance Atual: <span class="font-semibold text-gold-600">€{{ "{:,.2f}".format(leilao.lance_atual) }}</span></p>
                 </div>
                 <div class="mt-4">
                     <div class="flex items-center">
                         <div class="flex items-center">
-                            <!-- Estrelas de Avaliação -->
-                            {% for i in range(1, 6) %}
+                            {% for i in range(leilao.media_avaliacoes_int) %}
                             <svg class="text-gold-500 h-5 w-5 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                                 <path fill-rule="evenodd" d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z" clip-rule="evenodd" />
                             </svg>
@@ -53,22 +52,24 @@
                 <div class="mt-8">
                     <div class="flex items-center justify-between">
                         <h3 class="text-sm font-medium text-gray-900">Tempo Restante</h3>
-                        <p class="text-sm font-medium text-gray-500" id="countdown">{{ leilao.tempo_restante }}</p>
+                        <p class="text-sm font-medium text-gray-500" id="countdown">{{ leilao.tempo_fim_str }}</p>
                     </div>
                     <div class="mt-2 h-2 w-full bg-gray-200 rounded-full overflow-hidden">
-                        <div class="h-full bg-gold-500 rounded-full" style="width: 25%"></div>
+                        <div id="progress-bar" class="h-full bg-gold-500 rounded-full" style="width: 100%"></div>
                     </div>
                 </div>
                 <div class="mt-10">
                     <h3 class="text-sm font-medium text-gray-900">Dar Lance</h3>
-                    <form class="mt-4" action="#" method="POST">
+                    <form class="mt-4" action="{{ url_for('leilao_inspecao', leilao_id=leilao.id) }}" method="POST">
+                        <input type="hidden" name="leilao_id" value="{{ leilao.id }}">
+                        <input type="hidden" name="nome" value="Usuário"> <!-- Placeholder para o nome do usuário -->
                         <div class="flex rounded-md shadow-sm">
                             <span class="inline-flex items-center rounded-l-md border border-r-0 border-gray-300 bg-gray-50 px-3 text-gray-500 sm:text-sm">
                                 €
                             </span>
-                            <input type="number" name="price" id="price" class="block w-full min-w-0 flex-1 rounded-none rounded-r-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gold-600 sm:text-sm sm:leading-6" placeholder="0.00" aria-describedby="price-currency" required>
+                            <input type="number" name="price" id="price" step="0.01" min="{{ leilao.lance_atual + 0.01 }}" class="block w-full min-w-0 flex-1 rounded-none rounded-r-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gold-600 sm:text-sm sm:leading-6" placeholder="0.00" aria-describedby="price-currency" required>
                         </div>
-                        <button type="submit" class="mt-6 flex w-full items-center justify-center rounded-md border border-transparent bg-gold-600 px-8 py-3 text-base font-medium text-white hover:bg-gold-700 focus:outline-none focus:ring-2 focus:ring-gold-500 focus:ring-offset-2">Dar Lance</button>
+                        <button type="submit" class="mt-6 flex w-full items-center justify-center rounded-md border border-transparent bg-gold-600 px-8 py-3 text-base font-medium text-white hover:bg-gold-700 focus:outline-none focus:ring-2 focus:ring-gold-500 focus:ring-offset-2 transition-colors duration-300">Dar Lance</button>
                     </form>
                 </div>
                 <div class="mt-10 border-t border-gray-200 pt-10">
@@ -80,11 +81,10 @@
                                 <img src="{{ lance.imagem }}" alt="{{ lance.nome }}" class="h-10 w-10 rounded-full">
                                 <div class="ml-4">
                                     <p class="text-sm font-medium text-gray-900">{{ lance.nome }}</p>
-                                    <p class="text-sm text-gray-500">{{ lance.valor }} - {{ lance.tempo }}</p>
+                                    <p class="text-sm text-gray-500">€{{ "{:,.2f}".format(lance.valor) }} - {{ lance.tempo }}</p>
                                 </div>
                             </li>
                             {% endfor %}
-                            <!-- Adicione mais lances conforme necessário -->
                         </ul>
                     </div>
                 </div>
@@ -100,27 +100,62 @@
             <p id="modalAlt" class="mt-2 text-center text-white text-lg"></p>
         </div>
     </div>
+</main>
+{% endblock %}
 
-    <!-- Scripts para o Modal -->
-    <script>
-        function openModal(src, alt) {
-            document.getElementById('modalImage').src = src;
-            document.getElementById('modalAlt').innerText = alt;
-            document.getElementById('imageModal').classList.remove('hidden');
+{% block scripts %}
+<script>
+    // Modal de Imagem
+    function openModal(src, alt) {
+        document.getElementById('modalImage').src = src;
+        document.getElementById('modalAlt').innerText = alt;
+        document.getElementById('imageModal').classList.remove('hidden');
+    }
+
+    function closeModal() {
+        document.getElementById('imageModal').classList.add('hidden');
+        document.getElementById('modalImage').src = '';
+        document.getElementById('modalAlt').innerText = '';
+    }
+
+    window.onclick = function(event) {
+        const modal = document.getElementById('imageModal');
+        if (event.target == modal) {
+            closeModal();
+        }
+    }
+
+    // Contador regressivo e barra de progresso
+    const countdownElement = document.getElementById('countdown');
+    const progressBar = document.getElementById('progress-bar');
+    const endTime = new Date("{{ leilao.tempo_fim_str }}").getTime();
+
+    // Supondo que a duração total seja 2.5 horas (para o cálculo da barra de progresso)
+    const totalDuration = 2.5 * 60 * 60 * 1000; // 2.5 horas em milissegundos
+    const startTime = endTime - totalDuration;
+
+    function updateCountdown() {
+        const now = new Date().getTime();
+        const timeLeft = endTime - now;
+
+        if (timeLeft <= 0) {
+            clearInterval(countdownInterval);
+            countdownElement.innerText = "Leilão encerrado";
+            progressBar.style.width = "0%";
+            return;
         }
 
-        function closeModal() {
-            document.getElementById('imageModal').classList.add('hidden');
-            document.getElementById('modalImage').src = '';
-            document.getElementById('modalAlt').innerText = '';
-        }
+        const hours = Math.floor(timeLeft / (1000 * 60 * 60));
+        const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
 
-        // Fechar o modal ao clicar fora da imagem
-        window.onclick = function(event) {
-            const modal = document.getElementById('imageModal');
-            if (event.target == modal) {
-                closeModal();
-            }
-        }
-    </script>
+        countdownElement.innerText = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+        const progress = ((timeLeft) / totalDuration) * 100;
+        progressBar.style.width = `${progress}%`;
+    }
+
+    updateCountdown();
+    const countdownInterval = setInterval(updateCountdown, 1000);
+</script>
 {% endblock %}

@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard de Leilões - Inspeção de Leilão de Luxo{% endblock %}
+
+{% block content %}
+<main class="py-10">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <h1 class="text-3xl font-bold text-gray-900 mb-6">Leilões Ativos</h1>
+        <div class="grid gap-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+            {% for leilao in leiloes %}
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                <a href="{{ url_for('leilao_inspecao', leilao_id=leilao.id) }}">
+                    <!-- Imagem Principal -->
+                    <div class="aspect-w-16 aspect-h-9 overflow-hidden">
+                        <img src="{{ leilao.detalhes_imagens[0].url }}" alt="{{ leilao.detalhes_imagens[0].alt }}" class="object-cover w-full h-full transition-transform duration-300 hover:scale-105 cursor-pointer" onclick="openModal('{{ leilao.detalhes_imagens[0].url }}', '{{ leilao.detalhes_imagens[0].alt }}')">
+                    </div>
+                </a>
+                <div class="p-4">
+                    <h2 class="text-xl font-bold text-gray-900">{{ leilao.titulo }}</h2>
+                    <p class="mt-2 text-gray-700">{{ leilao.descricao[:100] }}{% if leilao.descricao|length > 100 %}...{% endif %}</p>
+                    <p class="mt-2 text-lg text-gray-900">Lance Atual: <span class="font-semibold text-gold-600">€{{ "{:,.2f}".format(leilao.lance_atual) }}</span></p>
+                    <div class="mt-2 flex items-center">
+                        <div class="flex items-center">
+                            {% for i in range(leilao.media_avaliacoes|round(0, 'floor')|int) %}
+                            <svg class="text-gold-500 h-5 w-5 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                <path fill-rule="evenodd" d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z" clip-rule="evenodd" />
+                            </svg>
+                            {% endfor %}
+                        </div>
+                        <p class="ml-3 text-sm text-gray-700">{{ leilao.media_avaliacoes }} ({{ leilao.avaliacoes }} avaliações)</p>
+                    </div>
+                    <div class="mt-4">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-sm font-medium text-gray-900">Tempo Restante</h3>
+                            <p class="text-sm font-medium text-gray-500" id="countdown-{{ leilao.id }}">Carregando...</p>
+                        </div>
+                        <div class="mt-1 h-2 w-full bg-gray-200 rounded-full overflow-hidden">
+                            <div id="progress-bar-{{ leilao.id }}" class="h-full bg-gold-500 rounded-full" style="width: 100%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Modal de Imagem -->
+    <div id="imageModal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 hidden">
+        <div class="relative">
+            <button onclick="closeModal()" class="absolute top-0 right-0 mt-4 mr-4 text-white text-3xl font-bold">&times;</button>
+            <img id="modalImage" src="" alt="" class="max-w-full max-h-screen rounded-lg">
+            <p id="modalAlt" class="mt-2 text-center text-white text-lg"></p>
+        </div>
+    </div>
+</main>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Modal de Imagem
+    function openModal(src, alt) {
+        document.getElementById('modalImage').src = src;
+        document.getElementById('modalAlt').innerText = alt;
+        document.getElementById('imageModal').classList.remove('hidden');
+    }
+
+    function closeModal() {
+        document.getElementById('imageModal').classList.add('hidden');
+        document.getElementById('modalImage').src = '';
+        document.getElementById('modalAlt').innerText = '';
+    }
+
+    window.onclick = function(event) {
+        const modal = document.getElementById('imageModal');
+        if (event.target == modal) {
+            closeModal();
+        }
+    }
+
+    // Função para inicializar os contadores regressivos
+    function initializeCountdown(leilao) {
+        const countdownElement = document.getElementById(`countdown-${leilao.id}`);
+        const progressBar = document.getElementById(`progress-bar-${leilao.id}`);
+        const endTime = new Date(leilao.tempo_fim_str).getTime();
+        const startTime = endTime - (leilao.tempo_fim - new Date(leilao.tempo_fim_str).getTime()); // Adjusted calculation
+        const totalDuration = endTime - startTime;
+
+        function updateCountdown() {
+            const now = new Date().getTime();
+            const timeLeft = endTime - now;
+
+            if (timeLeft <= 0) {
+                clearInterval(leilao.countdownInterval);
+                countdownElement.innerText = "Leilão encerrado";
+                progressBar.style.width = "0%";
+                return;
+            }
+
+            const hours = Math.floor(timeLeft / (1000 * 60 * 60));
+            const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+
+            countdownElement.innerText = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+            const progress = (timeLeft / totalDuration) * 100;
+            progressBar.style.width = `${progress}%`;
+        }
+
+        updateCountdown();
+        leilao.countdownInterval = setInterval(updateCountdown, 1000);
+    }
+
+    // Inicializar todos os contadores regressivos após o carregamento do DOM
+    document.addEventListener('DOMContentLoaded', function() {
+        const leiloesData = {{ leiloes | tojson }};
+        leiloesData.forEach(leilao => {
+            initializeCountdown(leilao);
+        });
+    });
+</script>
+{% endblock %}

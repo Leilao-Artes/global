@@ -1,59 +1,147 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request, redirect, url_for, flash
+from datetime import datetime, timedelta
+from uuid import uuid4
 
 app = Flask(__name__)
+app.secret_key = 'sua_chave_secreta_aqui'  # Necessário para usar sessões e flash
 
-@app.route('/')
-def index():
-    # Dados mockup para o leilão
-    leilao = {
+# Dados mockup para múltiplos leilões
+leiloes = [
+    {
+        'id': str(uuid4()),
         'titulo': 'Relógio de Luxo Vintage',
-        'lance_atual': '€ 15.000',
+        'lance_atual': 15000.00,  # Valor em euros
         'avaliacoes': 12,
         'media_avaliacoes': 5.0,
-        'descricao': 'Um relógio raro e elegante dos anos 60, perfeito para colecionadores. Este exemplar único combina o charme vintage com a precisão moderna, oferecendo não apenas um acessório de luxo, mas uma peça de história horológica.',
-        'tempo_restante': '02:30:00',
+        'descricao': 'Um relógio raro e elegante dos anos 60, perfeito para colecionadores. Este exemplar único combina o charme vintage com a precisão moderna, oferecendo não apenas um acessório de luxo, mas uma peça da história da relojoaria.',
+        'tempo_fim': datetime.now() + timedelta(hours=2, minutes=30),
         'historico_lances': [
             {
                 'nome': 'João Silva',
-                'valor': '€ 14.500',
+                'valor': 14500.00,
                 'tempo': '5 minutos atrás',
-                'imagem': 'https://images.unsplash.com/photo-1519345182560-3f2917c472ef?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
+                'imagem': 'https://images.unsplash.com/photo-1519345182560-3f2917c472ef?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
             },
             {
-                'nome': 'Luis Santos',
-                'valor': '€ 14.500',
-                'tempo': '5 minutos atrás',
-                'imagem': 'https://images.unsplash.com/photo-1519345182560-3f2917c472ef?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
+                'nome': 'Luís Santos',
+                'valor': 14000.00,
+                'tempo': '10 minutos atrás',
+                'imagem': 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
             },
             {
-                'nome': 'Maria Santos',
-                'valor': '€ 14.000',
+                'nome': 'Maria Gomes',
+                'valor': 13500.00,
                 'tempo': '15 minutos atrás',
-                'imagem': 'https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
+                'imagem': 'https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
             },
-            # Adicione mais lances conforme necessário
         ],
         'detalhes_imagens': [
             {
                 'url': 'https://images.unsplash.com/photo-1523170335258-f5ed11844a49?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80',
-                'alt': 'Detalhe 1'
+                'alt': 'Vista frontal do relógio'
             },
             {
                 'url': 'https://images.unsplash.com/photo-1587836374828-4dbafa94cf0e?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80',
-                'alt': 'Detalhe 2'
+                'alt': 'Detalhe do mostrador'
             },
             {
                 'url': 'https://images.unsplash.com/photo-1618220179428-22790b461013?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80',
-                'alt': 'Detalhe 3'
+                'alt': 'Vista lateral do relógio'
             },
             {
                 'url': 'https://images.unsplash.com/photo-1619946794135-5bc917a27793?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80',
-                'alt': 'Detalhe 4'
+                'alt': 'Detalhe da pulseira'
             },
-            # Adicione mais imagens detalhadas conforme necessário
         ]
-    }
+    },
+    {
+        'id': str(uuid4()),
+        'titulo': 'Bolsa de Grife Exclusiva',
+        'lance_atual': 8000.00,
+        'avaliacoes': 8,
+        'media_avaliacoes': 4.8,
+        'descricao': 'Uma bolsa de grife exclusiva, modelo limitado. Feita com materiais de alta qualidade e design sofisticado, esta bolsa é ideal para quem valoriza estilo e elegância.',
+        'tempo_fim': datetime.now() + timedelta(hours=1, minutes=45),
+        'historico_lances': [
+            {
+                'nome': 'Ana Pereira',
+                'valor': 7500.00,
+                'tempo': '10 minutos atrás',
+                'imagem': 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
+            },
+            {
+                'nome': 'Carlos Mendes',
+                'valor': 7000.00,
+                'tempo': '20 minutos atrás',
+                'imagem': 'https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
+            },
+        ],
+        'detalhes_imagens': [
+            {
+                'url': 'https://images.unsplash.com/photo-1523170335258-f5ed11844a49?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80',
+                'alt': 'Vista frontal da bolsa'
+            },
+            {
+                'url': 'https://images.unsplash.com/photo-1587836374828-4dbafa94cf0e?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80',
+                'alt': 'Detalhe do material'
+            },
+            {
+                'url': 'https://images.unsplash.com/photo-1618220179428-22790b461013?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80',
+                'alt': 'Vista lateral da bolsa'
+            },
+            {
+                'url': 'https://images.unsplash.com/photo-1619946794135-5bc917a27793?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80',
+                'alt': 'Detalhe da alça'
+            },
+        ]
+    },
+    # Adicione mais leilões conforme necessário
+]
 
+@app.route('/')
+def dashboard():
+    # Atualize os tempos finais para cada leilão e preprocessar 'media_avaliacoes' para inteiro
+    for leilao in leiloes:
+        leilao['tempo_fim_str'] = leilao['tempo_fim'].strftime('%Y-%m-%d %H:%M:%S')
+        leilao['media_avaliacoes_int'] = int(leilao['media_avaliacoes'] // 1)  # Floor division
+    return render_template('dashboard.html', leiloes=leiloes)
+
+@app.route('/leilao/<leilao_id>', methods=['GET', 'POST'])
+def leilao_inspecao(leilao_id):
+    # Encontre o leilão correspondente
+    leilao = next((l for l in leiloes if l['id'] == leilao_id), None)
+    if not leilao:
+        flash('Leilão não encontrado.', 'error')
+        return redirect(url_for('dashboard'))
+    
+    if request.method == 'POST':
+        lance = request.form.get('price')
+        nome_usuario = request.form.get('nome')  # Supondo que o usuário envia o nome
+
+        try:
+            lance = float(lance)
+            if lance > leilao['lance_atual']:
+                leilao['lance_atual'] = lance
+                leilao['historico_lances'].insert(0, {
+                    'nome': nome_usuario or 'Usuário Anônimo',
+                    'valor': lance,
+                    'tempo': 'Agora',
+                    'imagem': 'https://via.placeholder.com/40'  # Placeholder para imagem do usuário
+                })
+                flash(f'Parabéns, {nome_usuario or "Usuário Anônimo"}! Seu lance de €{lance:,.2f} foi registrado com sucesso.', 'success')
+            else:
+                flash(f'O lance deve ser superior ao lance atual de €{leilao["lance_atual"]:,.2f}.', 'error')
+        except ValueError:
+            flash('Valor do lance inválido.', 'error')
+        
+        return redirect(url_for('leilao_inspecao', leilao_id=leilao_id))
+    
+    # Formatar o tempo final como string
+    leilao['tempo_fim_str'] = leilao['tempo_fim'].strftime('%Y-%m-%d %H:%M:%S')
+    
+    # Preprocessar 'media_avaliacoes' para inteiro
+    leilao['media_avaliacoes_int'] = int(leilao['media_avaliacoes'] // 1)  # Floor division
+    
     return render_template('index.html', leilao=leilao)
 
 if __name__ == '__main__':

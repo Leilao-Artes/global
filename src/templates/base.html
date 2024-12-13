@@ -32,48 +32,57 @@
     </script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- Estilização Personalizada da Scrollbar -->
     <style>
-        /* Scrollbar para navegadores WebKit (Chrome, Safari) */
         ::-webkit-scrollbar {
             width: 12px;
         }
-
         ::-webkit-scrollbar-track {
             background: #f1f1f1;
         }
-
         ::-webkit-scrollbar-thumb {
-            background-color: #FFBB00; /* Cor do thumb */
+            background-color: #FFBB00;
             border-radius: 6px;
-            border: 3px solid #f1f1f1; /* Espaço entre o thumb e o track */
+            border: 3px solid #f1f1f1;
         }
-
-        /* Scrollbar para Firefox */
         * {
             scrollbar-width: thin;
             scrollbar-color: #FFBB00 #f1f1f1;
         }
-
-        /* Ajuste para garantir que o conteúdo não seja sobreposto pelo footer fixo */
         body {
-            padding-bottom: 64px; /* Altura do footer (ajuste conforme necessário) */
+            padding-bottom: 64px;
+        }
+        /* Estilos para notificações Flash */
+        .flash-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            max-width: 300px;
+        }
+        /* Transições para notificações */
+        .flash-message {
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+        .flash-message.hidden {
+            opacity: 0;
+            transform: translateY(-20px);
         }
     </style>
 </head>
 <body class="h-full font-sans antialiased">
     <div class="min-h-full bg-gradient-to-br from-gray-50 to-gold-50">
-        <!-- Cabeçalho -->
         <header class="bg-white shadow-sm fixed top-0 left-0 right-0 z-50">
             <nav class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div class="flex h-16 justify-between items-center">
                     <div class="flex items-center">
-                        <!-- Removido o logo da navbar -->
+                        <a href="{{ url_for('dashboard') }}" class="flex-shrink-0">
+                            <img class="h-8 w-auto" src="https://tailwindui.com/img/logos/mark.svg?color=gold&shade=600" alt="Logo Leilões de Luxo">
+                        </a>
                         <div class="hidden md:block">
                             <div class="ml-10 flex items-baseline space-x-4">
-                                <a href="#" class="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium">Leilões</a>
+                                <a href="{{ url_for('dashboard') }}" class="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium">Leilões</a>
                                 <a href="#" class="text-gray-900 px-3 py-2 rounded-md text-sm font-medium" aria-current="page">Inspeção</a>
-                                <a href="#" class="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium">Meus Lances</a>
+                                <a href="#" class="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium">Os Meus Lances</a>
                             </div>
                         </div>
                     </div>
@@ -91,22 +100,40 @@
                                     <img class="h-8 w-8 rounded-full" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt="Foto de Perfil">
                                 </button>
                             </div>
-                            <!-- Menu do utilizador pode ser adicionado aqui -->
                         </div>
                     </div>
                 </div>
             </nav>
         </header>
 
-        <!-- Conteúdo Principal -->
-        <main class="pt-16 pb-16"> <!-- Adicionado padding-top para compensar a navbar fixa -->
+        <!-- Container para Notificações Flash -->
+        <div class="flash-container">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="flash-message mb-4">
+                            <div class="max-w-sm w-full bg-{{ 'green' if category == 'success' else 'red' }}-100 border border-{{ 'green' if category == 'success' else 'red' }}-400 text-{{ 'green' if category == 'success' else 'red' }}-700 px-4 py-3 rounded relative" role="alert">
+                                <strong class="font-bold">{{ 'Sucesso!' if category == 'success' else 'Erro!' }}</strong>
+                                <span class="block sm:inline">{{ message }}</span>
+                                <span class="absolute top-0 bottom-0 right-0 px-4 py-3 cursor-pointer" onclick="this.parentElement.parentElement.classList.add('hidden')">
+                                    <svg class="fill-current h-6 w-6 text-{{ 'green' if category == 'success' else 'red' }}-500" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                        <title>Fechar</title>
+                                        <path d="M14.348 5.652a.5.5 0 00-.707 0L10 9.293 6.36 5.652a.5.5 0 10-.707.707L9.293 10l-3.64 3.64a.5.5 0 00.707.707L10 10.707l3.64 3.64a.5.5 0 00.707-.707L10.707 10l3.64-3.64a.5.5 0 000-.708z"/>
+                                    </svg>
+                                </span>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        </div>
+
+        <main class="pt-16 pb-16">
             {% block content %}
-            <!-- O conteúdo específico de cada página será inserido aqui -->
             {% endblock %}
         </main>
     </div>
 
-    <!-- Rodapé Fixo -->
     <footer class="fixed bottom-0 left-0 right-0 bg-white shadow-inner z-40">
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div class="border-t border-gray-200 py-4 text-center text-sm text-gray-500">
@@ -115,35 +142,18 @@
         </div>
     </footer>
 
-    <!-- Script do Contador Regressivo -->
+    {% block scripts %}
     <script>
-        // Simples contador regressivo
-        function updateCountdown() {
-            const countdownElement = document.getElementById('countdown');
-            if (!countdownElement) return;
-            let time = countdownElement.innerText.split(':').map(Number);
-            let [hours, minutes, seconds] = time;
-
-            if (seconds > 0) {
-                seconds--;
-            } else if (minutes > 0) {
-                minutes--;
-                seconds = 59;
-            } else if (hours > 0) {
-                hours--;
-                minutes = 59;
-                seconds = 59;
-            }
-
-            countdownElement.innerText = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-
-            if (hours === 0 && minutes === 0 && seconds === 0) {
-                clearInterval(countdownInterval);
-                alert('O leilão terminou!');
-            }
-        }
-
-        const countdownInterval = setInterval(updateCountdown, 1000);
+        // Fechamento Automático de Notificações Flash após 5 segundos
+        document.addEventListener('DOMContentLoaded', function() {
+            const flashMessages = document.querySelectorAll('.flash-message');
+            flashMessages.forEach(message => {
+                setTimeout(() => {
+                    message.classList.add('hidden');
+                }, 5000); // 5 segundos
+            });
+        });
     </script>
+    {% endblock %}
 </body>
 </html>
