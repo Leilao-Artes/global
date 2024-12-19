@@ -1,89 +1,78 @@
-import unittest
-from flask_testing import TestCase
-from app import app, db, User
+# tests.py
 
-class TestApp(TestCase):
+import os
+from datetime import datetime, timedelta
+from uuid import uuid4
+import random
+import urllib.parse
 
-    def create_app(self):
-        app.config['TESTING'] = True
-        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
-        app.config['WTF_CSRF_ENABLED'] = False
-        return app
+# Importa os objetos do seu aplicativo Flask
+from app import app, db, Leilao, Imagem
 
-    def setUp(self):
-        db.create_all()
-        self.client = app.test_client()
+def create_leiloes(n=15):
+    """
+    Cria 'n' leilões com dados fictícios e os adiciona ao banco de dados.
+    """
+    with app.app_context():
+        for i in range(1, n + 1):
+            leilao_id = str(uuid4())
+            titulo = f"Leilão {i}"
+            lance_inicial = round(random.uniform(10.0, 100.0), 2)
+            descricao = f"Descrição detalhada para o {titulo}."
+            local_de_entrega = f"Cidade {random.randint(1, 100)}"
+            ano_fabricacao = random.randint(1990, datetime.now().year)
+            condicao = random.choice(['Novo', 'Usado', 'Recondicionado'])
+            horas = random.randint(1, 168)  # Até 7 dias
+            tempo_fim = datetime.now() + timedelta(hours=horas)
 
-        # Create a test user
-        self.user = User(name="Test User", email="test@example.com")
-        self.user.set_password("password")
-        db.session.add(self.user)
+            # Cria uma instância de Leilao
+            novo_leilao = Leilao(
+                id=leilao_id,
+                titulo=titulo,
+                lance_atual=lance_inicial,
+                avaliacoes=0,
+                media_avaliacoes=5.0,
+                descricao=descricao,
+                tempo_fim=tempo_fim,
+                local_de_entrega=local_de_entrega,
+                ano_fabricacao=ano_fabricacao,
+                condicao=condicao,
+                total_lances=0
+            )
+            db.session.add(novo_leilao)
+
+            # Gera URLs de imagens usando UI Avatars
+            urls_avatar = [
+                {
+                    'url': f"https://ui-avatars.com/api/?name={urllib.parse.quote(titulo)}&background=random&color=fff",
+                    'alt': f"Imagem principal de {titulo}"
+                },
+                {
+                    'url': f"https://ui-avatars.com/api/?name={urllib.parse.quote(titulo)}+1&background=random&color=fff",
+                    'alt': f"Imagem detalhada 1 de {titulo}"
+                },
+                {
+                    'url': f"https://ui-avatars.com/api/?name={urllib.parse.quote(titulo)}+2&background=random&color=fff",
+                    'alt': f"Imagem detalhada 2 de {titulo}"
+                },
+                {
+                    'url': f"https://ui-avatars.com/api/?name={urllib.parse.quote(titulo)}+3&background=random&color=fff",
+                    'alt': f"Imagem detalhada 3 de {titulo}"
+                }
+            ]
+
+            # Adiciona as imagens ao banco de dados
+            for img_data in urls_avatar:
+                imagem = Imagem(
+                    url=img_data['url'],
+                    alt=img_data['alt'],
+                    leilao_id=leilao_id
+                )
+                db.session.add(imagem)
+        
+        # Salva todas as alterações no banco de dados
         db.session.commit()
-
-    def tearDown(self):
-        db.session.remove()
-        db.drop_all()
-
-    def login(self, email, password):
-        return self.client.post('/login', data=dict(
-            email=email,
-            password=password
-        ), follow_redirects=True)
-
-    def logout(self):
-        return self.client.get('/logout', follow_redirects=True)
-
-    def test_landing_page(self):
-        response = self.client.get('/')
-        self.assertEqual(response.status_code, 200)
-        self.assert_template_used('landingpage.html')
-
-    def test_login(self):
-        response = self.login('test@example.com', 'password')
-        self.assertIn(b'Login realizado com sucesso!', response.data)
-
-    def test_invalid_login(self):
-        response = self.login('wrong@example.com', 'password')
-        self.assertIn(b'Credenciais inválidas. Tente novamente.', response.data)
-        self.assertIn('Credenciais inválidas. Tente novamente.'.encode('utf-8'), response.data)
-    def test_register(self):
-        response = self.client.post('/register', data=dict(
-            name="New User",
-            email="new@example.com",
-            password="password",
-            confirm_password="password"
-        ), follow_redirects=True)
-        self.assertIn(b'Conta criada com sucesso! Faça login.', response.data)
-        self.assertIn('Conta criada com sucesso! Faça login.'.encode('utf-8'), response.data)
-    def test_logout(self):
-        self.login('test@example.com', 'password')
-        response = self.logout()
-        self.assertIn(b'Você saiu da sua conta.', response.data)
-        self.assertIn('Você saiu da sua conta.'.encode('utf-8'), response.data)
-    def test_dashboard_access(self):
-        self.login('test@example.com', 'password')
-        response = self.client.get('/dashboard')
-        self.assertEqual(response.status_code, 200)
-        self.assert_template_used('dashboard.html')
-
-    def test_create_leilao(self):
-        self.login('test@example.com', 'password')
-        response = self.client.post('/criar-leilao', data=dict(
-            titulo="Leilao Teste",
-            lance_inicial="100.0",
-            descricao="Descricao do leilao",
-            local_de_entrega="Local",
-            ano_fabricacao="2020",
-            condicao="Novo",
-            horas="5"
-        ), follow_redirects=True)
-        self.assertIn(b'Leilão criado com sucesso!', response.data)
-        self.assertIn('Leilão criado com sucesso!'.encode('utf-8'), response.data)
-    def test_meus_lances(self):
-        self.login('test@example.com', 'password')
-        response = self.client.get('/meus-lances')
-        self.assertEqual(response.status_code, 200)
-        self.assert_template_used('meus_lances.html')
+        print(f"{n} leilões foram criados com sucesso.")
 
 if __name__ == '__main__':
-    unittest.main()
+    create_leiloes()

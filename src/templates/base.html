@@ -14,6 +14,9 @@
                         'luxbeige': '#F5F5ED',
                         'luxbrown': '#C4A484',
                         'luxgold': '#D4AF37',
+                        'luxblue': '#3B82F6',
+                        'luxred': '#EF4444',
+                        'luxgreen': '#10B981',
                     },
                     fontFamily: {
                         'sans': ['Inter', 'sans-serif'],
@@ -23,8 +26,8 @@
         }
     </script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
     <style>
         /* Custom scrollbar styles */
         ::-webkit-scrollbar {
@@ -46,42 +49,42 @@
         }
     </style>
 </head>
-<body class="h-full font-sans antialiased flex flex-col">
+<body class="h-full font-sans antialiased flex flex-col min-h-screen">
     <header class="bg-white shadow-sm">
-        <nav class="px-4 py-2 flex items-center justify-between">
+        <nav class="container mx-auto px-4 py-4 flex items-center justify-between">
             <div class="flex items-center space-x-4">
                 <a href="{{ url_for('dashboard') }}" class="flex items-center">
                     <svg class="h-8 w-8 text-luxgold" fill="currentColor" viewBox="0 0 20 20">
                         <circle cx="10" cy="10" r="8" />
                     </svg>
-                    <span class="ml-2 text-luxgold font-bold text-lg">BID FLOW</span>
+                    <span class="ml-2 text-luxgold font-bold text-xl">BID FLOW</span>
                 </a>
-                <div class="hidden sm:flex space-x-6">
-                    <a href="{{ url_for('dashboard') }}" class="text-gray-900 hover:text-luxgold text-sm font-medium">
+                <div class="hidden md:flex space-x-6">
+                    <a href="{{ url_for('dashboard') }}" class="text-gray-900 hover:text-luxgold text-sm font-medium transition">
                         Leilões
                     </a>
-                    <a href="{{ url_for('criar_leilao') }}" class="text-gray-600 hover:text-luxgold text-sm font-medium">
+                    <a href="{{ url_for('criar_leilao') }}" class="text-gray-600 hover:text-luxgold text-sm font-medium transition">
                         Criar Leilão
                     </a>
                     {% if current_user.is_authenticated %}
-                    <a href="{{ url_for('meus_lances') }}" class="text-gray-600 hover:text-luxgold text-sm font-medium">
+                    <a href="{{ url_for('meus_lances') }}" class="text-gray-600 hover:text-luxgold text-sm font-medium transition">
                         Os meus lances
                     </a>
                     {% endif %}
                 </div>
             </div>
-            <div class="hidden sm:flex items-center space-x-4">
+            <div class="hidden md:flex items-center space-x-4">
                 {% if current_user.is_authenticated %}
                     <span class="text-gray-800 text-sm">Olá, {{ current_user.name }}!</span>
-                    <a href="{{ url_for('logout') }}" class="bg-luxbrown text-luxwhite px-3 py-1 rounded hover:bg-luxgold text-sm font-medium">
+                    <a href="{{ url_for('logout') }}" class="bg-luxbrown text-luxwhite px-4 py-2 rounded hover:bg-luxgold transition">
                         Sair
                     </a>
                 {% else %}
-                    <a href="{{ url_for('login') }}" class="text-gray-600 hover:text-luxgold text-sm font-medium">Entrar</a>
-                    <a href="{{ url_for('register') }}" class="text-gray-600 hover:text-luxgold text-sm font-medium">Registar</a>
+                    <a href="{{ url_for('login') }}" class="text-gray-600 hover:text-luxgold text-sm font-medium transition">Entrar</a>
+                    <a href="{{ url_for('register') }}" class="bg-luxgold text-luxwhite px-4 py-2 rounded hover:bg-luxbrown transition">Registar</a>
                 {% endif %}
             </div>
-            <div class="sm:hidden flex items-center">
+            <div class="md:hidden flex items-center">
                 <button type="button" class="p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none"
                         aria-controls="mobile-menu" aria-expanded="false">
                     <span class="sr-only">Abrir menu principal</span>
@@ -93,12 +96,12 @@
         </nav>
 
         <!-- Menu Mobile -->
-        <div class="sm:hidden hidden px-4 pb-4" id="mobile-menu">
+        <div class="md:hidden hidden px-4 pb-4" id="mobile-menu">
             <div class="space-y-2">
-                <a href="{{ url_for('dashboard') }}" class="block text-gray-900 hover:text-luxgold text-sm font-medium">Leilões</a>
-                <a href="{{ url_for('criar_leilao') }}" class="block text-gray-600 hover:text-luxgold text-sm font-medium">Criar Leilão</a>
+                <a href="{{ url_for('dashboard') }}" class="block text-gray-900 hover:text-luxgold text-sm font-medium transition">Leilões</a>
+                <a href="{{ url_for('criar_leilao') }}" class="block text-gray-600 hover:text-luxgold text-sm font-medium transition">Criar Leilão</a>
                 {% if current_user.is_authenticated %}
-                <a href="{{ url_for('meus_lances') }}" class="block text-gray-600 hover:text-luxgold text-sm font-medium">Os meus lances</a>
+                <a href="{{ url_for('meus_lances') }}" class="block text-gray-600 hover:text-luxgold text-sm font-medium transition">Os meus lances</a>
                 <hr class="border-gray-300">
                 <div class="flex items-center space-x-2">
                     <img class="h-8 w-8 rounded-full" src="https://ui-avatars.com/api/?name={{ current_user.name }}&background=C4A484&color=fff" alt="Perfil">
@@ -107,22 +110,32 @@
                 </div>
                 {% else %}
                 <div class="flex items-center space-x-2 pt-2">
-                    <a href="{{ url_for('login') }}" class="text-gray-600 hover:text-luxgold text-sm font-medium">Entrar</a>
-                    <a href="{{ url_for('register') }}" class="text-gray-600 hover:text-luxgold text-sm font-medium">Registar</a>
+                    <a href="{{ url_for('login') }}" class="text-gray-600 hover:text-luxgold text-sm font-medium transition">Entrar</a>
+                    <a href="{{ url_for('register') }}" class="text-gray-600 hover:text-luxgold text-sm font-medium transition">Registar</a>
                 </div>
                 {% endif %}
             </div>
         </div>
     </header>
 
-    <main class="flex-grow py-6 px-4 sm:px-6 lg:px-8">
+    <!-- Bloco para classes personalizadas do main -->
+    <main class="flex-grow {% block main_classes %}container mx-auto py-6 px-4 sm:px-6 lg:px-8{% endblock %}">
         {% block content %}{% endblock %}
     </main>
 
-    <footer class="bg-white px-4 py-4">
-        <p class="text-center text-sm text-gray-500">
-            &copy; 2024 BID FLOW. Todos os direitos reservados.
-        </p>
+    <footer class="bg-white border-t">
+        <div class="container mx-auto px-4 py-6">
+            <div class="flex flex-col md:flex-row items-center justify-between">
+                <p class="text-center text-sm text-gray-500">
+                    &copy; 2024 BID FLOW. Todos os direitos reservados.
+                </p>
+                <div class="mt-4 md:mt-0 flex space-x-4">
+                    <a href="#" class="text-gray-600 hover:text-luxgold text-sm transition">Política de Privacidade</a>
+                    <a href="#" class="text-gray-600 hover:text-luxgold text-sm transition">Termos de Serviço</a>
+                    <a href="#" class="text-gray-600 hover:text-luxgold text-sm transition">Contato</a>
+                </div>
+            </div>
+        </div>
     </footer>
 
     {% block scripts %}{% endblock %}

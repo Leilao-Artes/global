@@ -15,7 +15,7 @@ from flask_socketio import SocketIO, emit, join_room, leave_room
 app = Flask(__name__)
 app.secret_key = 'sua_chave_secreta_aqui'
 
-# Caminho base e configuração do banco SQLite
+# Configuração do Banco de Dados SQLite
 basedir = os.path.abspath(os.path.dirname(__file__))
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'leiloes.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -24,10 +24,10 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
-# SocketIO para comunicação em tempo real
+# Inicialização do SocketIO para comunicação em tempo real
 socketio = SocketIO(app, cors_allowed_origins='*')
 
-# Pasta de upload
+# Configuração da pasta de upload
 UPLOAD_FOLDER = os.path.join('static', 'uploads')
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -37,29 +37,36 @@ ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 # Configuração de logging
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(levelname)s %(message)s')
 
-# Flask-Login
+# Configuração do Flask-Login
 login_manager = LoginManager()
 login_manager.init_app(app)
-login_manager.login_view = 'login'  # rota de login caso o user não esteja logado
+login_manager.login_view = 'login'  # Rota de login caso o usuário não esteja logado
 login_manager.login_message = "Por favor, faça login para acessar esta página."
 login_manager.login_message_category = "info"
 
 # Modelos
 class User(UserMixin, db.Model):
+    """Modelo para os usuários do sistema."""
     __tablename__ = 'users'
     id = db.Column(db.String, primary_key=True, default=lambda: str(uuid4()))
     name = db.Column(db.String, nullable=False)
     email = db.Column(db.String, unique=True, nullable=False)
     password_hash = db.Column(db.String, nullable=False)
+    
+    # Relação com lances
+    lances = db.relationship('Lance', backref='user', lazy=True)
 
     def set_password(self, password):
+        """Define o hash da senha para o usuário."""
         self.password_hash = generate_password_hash(password)
 
     def check_password(self, password):
+        """Verifica se a senha fornecida corresponde ao hash armazenado."""
         return check_password_hash(self.password_hash, password)
 
 
 class Leilao(db.Model):
+    """Modelo para os leilões."""
     __tablename__ = 'leiloes'
     id = db.Column(db.String, primary_key=True)
     titulo = db.Column(db.String, nullable=False)
@@ -67,6 +74,7 @@ class Leilao(db.Model):
     avaliacoes = db.Column(db.Integer, default=0)
     media_avaliacoes = db.Column(db.Float, default=5.0)
     descricao = db.Column(db.Text, nullable=False)
+    tempo_inicio = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)  # Novo Campo
     tempo_fim = db.Column(db.DateTime, nullable=False)
     local_de_entrega = db.Column(db.String, nullable=False)
     ano_fabricacao = db.Column(db.Integer, nullable=False)
@@ -77,6 +85,7 @@ class Leilao(db.Model):
 
 
 class Lance(db.Model):
+    """Modelo para os lances nos leilões."""
     __tablename__ = 'lances'
     id = db.Column(db.Integer, primary_key=True)
     nome = db.Column(db.String, nullable=False)
@@ -88,6 +97,7 @@ class Lance(db.Model):
 
 
 class Imagem(db.Model):
+    """Modelo para as imagens associadas aos leilões."""
     __tablename__ = 'imagens'
     id = db.Column(db.Integer, primary_key=True)
     url = db.Column(db.String, nullable=False)
@@ -97,13 +107,16 @@ class Imagem(db.Model):
 
 @login_manager.user_loader
 def load_user(user_id):
+    """Carrega o usuário a partir do ID."""
     return User.query.get(user_id)
 
 # Funções auxiliares
 def allowed_file(filename):
+    """Verifica se o arquivo possui uma extensão permitida."""
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 def generate_uiavatar_urls(title):
+    """Gera URLs de avatar utilizando o serviço ui-avatars.com."""
     base = "https://ui-avatars.com/api/"
     encoded = urllib.parse.quote(title)
     return [
@@ -114,6 +127,7 @@ def generate_uiavatar_urls(title):
     ]
 
 def serialize_leilao(leilao):
+    """Serializa os dados de um leilão para JSON."""
     return {
         'id': leilao.id,
         'titulo': leilao.titulo,
@@ -121,6 +135,7 @@ def serialize_leilao(leilao):
         'avaliacoes': leilao.avaliacoes,
         'media_avaliacoes': leilao.media_avaliacoes,
         'descricao': leilao.descricao,
+        'tempo_inicio': leilao.tempo_inicio.strftime('%Y-%m-%d %H:%M:%S'),  # Novo Campo
         'tempo_fim': leilao.tempo_fim.strftime('%Y-%m-%d %H:%M:%S'),
         'local_de_entrega': leilao.local_de_entrega,
         'ano_fabricacao': leilao.ano_fabricacao,
@@ -131,6 +146,11 @@ def serialize_leilao(leilao):
 # Rotas de autenticação
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    """
+    Rota para login de usuários.
+    GET: Exibe o formulário de login.
+    POST: Processa as credenciais e autentica o usuário.
+    """
     logging.info('Página de login acessada')
     if request.method == 'POST':
         email = request.form.get('email')
@@ -147,6 +167,11 @@ def login():
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
+    """
+    Rota para registro de novos usuários.
+    GET: Exibe o formulário de registro.
+    POST: Processa os dados e cria um novo usuário.
+    """
     logging.info('Página de cadastro acessada')
     if request.method == 'POST':
         name = request.form.get('name')
@@ -176,6 +201,9 @@ def register():
 @app.route('/logout')
 @login_required
 def logout():
+    """
+    Rota para logout de usuários.
+    """
     logout_user()
     flash('Você saiu da sua conta.', 'info')
     return redirect(url_for('login'))
@@ -183,56 +211,105 @@ def logout():
 # Rotas principais
 @app.route('/')
 def landing_page():
-    # Busca até 4 leilões cujo tempo não tenha terminado ainda (ativos).
-    # Ajuste o filtro conforme a tua lógica de negócio.
-    agora = datetime.now()
+    """
+    Rota da página inicial que exibe os 4 primeiros leilões ativos.
+    """
+    agora = datetime.utcnow()
     leiloes_ativos = Leilao.query.filter(Leilao.tempo_fim > agora).order_by(Leilao.tempo_fim.asc()).limit(4).all()
     
     return render_template('landingpage.html', leiloes=leiloes_ativos, agora=agora)
 
-
 @app.route('/dashboard')
 @login_required
 def dashboard():
+    """
+    Rota do dashboard que exibe os leilões com opções de pesquisa, filtros, paginação e seleção dinâmica de layout.
+    """
     # Parâmetros de pesquisa e filtro
     q = request.args.get('q', '').strip()
     ano_fabricacao = request.args.get('ano_fabricacao', '').strip()
     condicao = request.args.get('condicao', '').strip()
     ordenar = request.args.get('ordenar', '').strip()
+    status = request.args.get('status', 'all').strip()
+    page = request.args.get('page', 1, type=int)
+    per_page = 18  # Número de leilões por página (ajustado para até 6 cards por linha)
+    cards_per_row = request.args.get('cards_per_row', 3, type=int)  # Número de cards por linha
 
     query = Leilao.query
 
+    # Filtro por pesquisa de título
     if q:
         query = query.filter(Leilao.titulo.ilike(f"%{q}%"))
+    
+    # Filtro por ano de fabricação
     if ano_fabricacao:
-        query = query.filter(Leilao.ano_fabricacao == int(ano_fabricacao))
+        try:
+            ano_fabricacao_int = int(ano_fabricacao)
+            query = query.filter(Leilao.ano_fabricacao == ano_fabricacao_int)
+        except ValueError:
+            flash('Ano de fabricação inválido.', 'error')
+    
+    # Filtro por condição
     if condicao:
         query = query.filter(Leilao.condicao == condicao)
+    
+    # Filtro por status
+    agora = datetime.utcnow()
+    if status == 'active':
+        query = query.filter(Leilao.tempo_fim > agora)
+    elif status == 'finished':
+        query = query.filter(Leilao.tempo_fim <= agora)
+    elif status == 'participated':
+        # Filtra os leilões nos quais o usuário atual participou
+        leilao_ids = [l.leilao_id for l in current_user.lances]
+        query = query.filter(Leilao.id.in_(leilao_ids))
+    # 'all' não aplica filtro adicional
 
-    # Ordenações de exemplo
+    # Ordenações
     if ordenar == 'lance':
         query = query.order_by(Leilao.lance_atual.asc())
     elif ordenar == 'tempo':
-        # Ordenar pelo tempo restante (o que terminar antes primeiro)
-        # tempo_restante = Leilao.tempo_fim - datetime.now()
-        # Infelizmente não é direto assim no SQLite, você pode ordenar só por tempo_fim mesmo
         query = query.order_by(Leilao.tempo_fim.asc())
+    else:
+        query = query.order_by(Leilao.tempo_fim.desc())  # Ordenação padrão
 
-    leiloes = query.all()
+    # Limitar o número de cards por linha (máximo 6)
+    if cards_per_row not in [1, 2, 3, 4, 5, 6]:
+        cards_per_row = 3  # Valor padrão
 
-    # Anos disponíveis para filtros (exemplo)
-    anos_disponiveis = [str(ano) for ano in range(1900, datetime.now().year+1)]
+    # Paginação
+    pagination = query.paginate(page=page, per_page=per_page, error_out=False)
+    leiloes = pagination.items
 
-    agora = datetime.now()
-    for leilao in leiloes:
-        leilao.tempo_fim_str = leilao.tempo_fim.strftime('%Y-%m-%d %H:%M:%S')
-        leilao.media_avaliacoes_int = int(leilao.media_avaliacoes)
+    # Anos disponíveis para filtros
+    anos_disponiveis = [str(ano) for ano in range(1900, datetime.utcnow().year + 1)]
+
+    # Serialização dos leilões para JavaScript
     leiloes_data = [serialize_leilao(l) for l in leiloes]
-    return render_template('dashboard.html', leiloes=leiloes, leiloes_data=leiloes_data, anos_disponiveis=anos_disponiveis, agora=agora)
+
+    return render_template(
+        'dashboard.html',
+        leiloes=leiloes,
+        leiloes_data=leiloes_data,
+        anos_disponiveis=anos_disponiveis,
+        agora=agora,
+        pagination=pagination,
+        status=status,
+        q=q,
+        ano_fabricacao=ano_fabricacao,
+        condicao=condicao,
+        ordenar=ordenar,
+        cards_per_row=cards_per_row
+    )
 
 @app.route('/leilao/<leilao_id>', methods=['GET', 'POST'])
 @login_required
 def leilao_inspecao(leilao_id):
+    """
+    Rota para inspecionar um leilão específico.
+    GET: Exibe os detalhes do leilão.
+    POST: Processa um novo lance.
+    """
     leilao = Leilao.query.filter_by(id=leilao_id).first()
     if not leilao:
         flash('Leilão não encontrado.', 'error')
@@ -278,6 +355,11 @@ def leilao_inspecao(leilao_id):
 @app.route('/criar-leilao', methods=['GET', 'POST'])
 @login_required
 def criar_leilao():
+    """
+    Rota para criação de novos leilões.
+    GET: Exibe o formulário de criação de leilão.
+    POST: Processa os dados e cria um novo leilão.
+    """
     if request.method == 'POST':
         titulo = request.form.get('titulo')
         lance_inicial = request.form.get('lance_inicial')
@@ -332,7 +414,8 @@ def criar_leilao():
             avaliacoes=0,
             media_avaliacoes=5.0,
             descricao=descricao,
-            tempo_fim=datetime.now() + timedelta(hours=horas),
+            tempo_inicio=datetime.utcnow(),  # Define o tempo de início
+            tempo_fim=datetime.utcnow() + timedelta(hours=horas),
             local_de_entrega=local_de_entrega,
             ano_fabricacao=ano_fabricacao,
             condicao=condicao,
@@ -346,20 +429,22 @@ def criar_leilao():
     
     return render_template('criar_leilao.html')
 
-
 @app.route('/meus-lances')
 @login_required
 def meus_lances():
+    """
+    Rota que exibe todos os lances do usuário atual.
+    """
     # Lista todos os lances do usuário atual
     meus_lances = Lance.query.filter_by(user_id=current_user.id).all()
-    # Para cada lance, vamos pegar o leilão e verificar se o lance é o maior ou não
+    # Para cada lance, pegar o leilão e verificar se o lance é o maior ou não
     lances_info = []
     for lance in meus_lances:
         leilao = Leilao.query.filter_by(id=lance.leilao_id).first()
         if not leilao:
             continue
         status = "Ganhando" if lance.valor == leilao.lance_atual else "Ultrapassado"
-        if datetime.now() > leilao.tempo_fim:
+        if datetime.utcnow() > leilao.tempo_fim:
             status = "Leilão Encerrado"
         lances_info.append({
             'titulo': leilao.titulo,
@@ -371,22 +456,30 @@ def meus_lances():
         })
     return render_template('meus_lances.html', lances_info=lances_info)
 
-
 # Eventos SocketIO
 @socketio.on('join_leilao')
 def on_join(data):
+    """
+    Evento para um usuário entrar em uma sala de leilão.
+    """
     leilao_id = data['leilao_id']
     join_room(leilao_id)
     emit('room_joined', {'msg': f'Entrou no leilão {leilao_id}'}, room=leilao_id)
 
 @socketio.on('leave_leilao')
 def on_leave(data):
+    """
+    Evento para um usuário sair de uma sala de leilão.
+    """
     leilao_id = data['leilao_id']
     leave_room(leilao_id)
     emit('room_left', {'msg': f'Saiu do leilão {leilao_id}'}, room=leilao_id)
 
 @socketio.on('request_update')
 def handle_request_update(data):
+    """
+    Evento para solicitar uma atualização dos dados de um leilão.
+    """
     leilao_id = data.get('leilao_id')
     if not leilao_id:
         emit('update_error', {'msg': 'ID do leilão não fornecido.'})
@@ -398,10 +491,11 @@ def handle_request_update(data):
         return
 
     leilao_data = serialize_leilao(leilao)
-    # Optionally include additional data like 'historico_lances' and 'detalhes_imagens' if needed
+    # Opcionalmente, incluir dados adicionais como 'historico_lances' e 'detalhes_imagens' se necessário
     emit('update_leilao', leilao_data)
 
 # Criação das tabelas
+# Removido 'db.create_all()' para evitar conflitos com Flask-Migrate
 with app.app_context():
     db.create_all()
 

@@ -1,68 +1,101 @@
 {% extends "base.html" %}
 
-{% block title %}Dashboard de Artes - BID FLOW{% endblock %}
+{% block title %}Dashboard de Leilões - BID FLOW{% endblock %}
 
 {% block content %}
-<div class="space-y-4">
+<div class="space-y-8">
+
+    <!-- Título da Página -->
+    <div class="text-center">
+        <h1 class="text-2xl font-bold text-luxgold">Dashboard de Leilões</h1>
+        <p class="text-gray-600 text-sm">Encontre o leilão perfeito através de filtros e pesquisa</p>
+    </div>
+
     <!-- Barra de Pesquisa e Filtros -->
-    <form method="GET" class="flex flex-col sm:flex-row items-start sm:items-end space-y-4 sm:space-y-0 sm:space-x-4">
+    <form method="GET" id="filters-form" class="grid grid-cols-1 sm:grid-cols-4 lg:grid-cols-8 gap-4 items-end">
         <!-- Campo de pesquisa -->
-        <div class="flex-grow">
+        <div class="col-span-2">
             <label for="q" class="block text-sm font-medium text-gray-700 mb-1">Pesquisar por título:</label>
             <input 
                 type="text" 
                 name="q" 
                 id="q"
-                value="{{ request.args.get('q', '') }}" 
+                value="{{ q }}" 
                 placeholder="Ex: Mona Lisa..." 
                 class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-luxgold focus:border-luxgold"
             />
         </div>
 
         <!-- Filtro por ano de fabricação -->
-        <div>
-            <label for="ano_fabricacao" class="block text-sm font-medium text-gray-700 mb-1">Ano de Fabricação:</label>
+        <div class="col-span-1">
+            <label for="ano_fabricacao" class="block text-sm font-medium text-gray-700 mb-1">Ano:</label>
             <select name="ano_fabricacao" id="ano_fabricacao"
-                class="border border-gray-300 rounded-md px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-luxgold focus:border-luxgold">
+                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-luxgold focus:border-luxgold">
                 <option value="">Todos</option>
                 {% for ano in anos_disponiveis %}
-                <option value="{{ ano }}" {% if request.args.get('ano_fabricacao') == ano|string %}selected{% endif %}>{{ ano }}</option>
+                <option value="{{ ano }}" {% if ano_fabricacao == ano %}selected{% endif %}>{{ ano }}</option>
                 {% endfor %}
             </select>
         </div>
 
         <!-- Filtro por Condição -->
-        <div>
+        <div class="col-span-1">
             <label for="condicao" class="block text-sm font-medium text-gray-700 mb-1">Condição:</label>
             <select name="condicao" id="condicao"
-                class="border border-gray-300 rounded-md px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-luxgold focus:border-luxgold">
+                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-luxgold focus:border-luxgold">
                 <option value="">Todas</option>
-                <option value="Novo" {% if request.args.get('condicao') == 'Novo' %}selected{% endif %}>Novo</option>
-                <option value="Usado" {% if request.args.get('condicao') == 'Usado' %}selected{% endif %}>Usado</option>
-                <option value="Semi-novo" {% if request.args.get('condicao') == 'Semi-novo' %}selected{% endif %}>Semi-novo</option>
+                <option value="Novo" {% if condicao == 'Novo' %}selected{% endif %}>Novo</option>
+                <option value="Usado" {% if condicao == 'Usado' %}selected{% endif %}>Usado</option>
+                <option value="Semi-novo" {% if condicao == 'Semi-novo' %}selected{% endif %}>Semi-novo</option>
+            </select>
+        </div>
+
+        <!-- Filtro por Status -->
+        <div class="col-span-1">
+            <label for="status" class="block text-sm font-medium text-gray-700 mb-1">Status:</label>
+            <select name="status" id="status"
+                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-luxgold focus:border-luxgold">
+                <option value="all" {% if status == 'all' %}selected{% endif %}>Todos</option>
+                <option value="active" {% if status == 'active' %}selected{% endif %}>Ativos</option>
+                <option value="finished" {% if status == 'finished' %}selected{% endif %}>Encerrados</option>
+                <option value="participated" {% if status == 'participated' %}selected{% endif %}>Participados</option>
             </select>
         </div>
 
         <!-- Ordenação -->
-        <div>
+        <div class="col-span-1">
             <label for="ordenar" class="block text-sm font-medium text-gray-700 mb-1">Ordenar por:</label>
             <select name="ordenar" id="ordenar"
-                class="border border-gray-300 rounded-md px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-luxgold focus:border-luxgold">
+                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-luxgold focus:border-luxgold">
                 <option value="">Padrão</option>
-                <option value="lance" {% if request.args.get('ordenar') == 'lance' %}selected{% endif %}>Lance Atual (Crescente)</option>
-                <option value="tempo" {% if request.args.get('ordenar') == 'tempo' %}selected{% endif %}>Tempo Restante (Menor primeiro)</option>
+                <option value="lance" {% if ordenar == 'lance' %}selected{% endif %}>Lance Atual (Crescente)</option>
+                <option value="tempo" {% if ordenar == 'tempo' %}selected{% endif %}>Tempo Restante (Menor primeiro)</option>
             </select>
         </div>
 
-        <div>
-            <button type="submit" class="bg-luxgold text-white px-4 py-2 rounded-md hover:bg-yellow-600 transition text-sm font-medium mt-6 sm:mt-0 w-full">
+        <!-- Seleção de Cards por Linha -->
+        <div class="col-span-1">
+            <label for="cards_per_row" class="block text-sm font-medium text-gray-700 mb-1">Cards/Linha:</label>
+            <select name="cards_per_row" id="cards_per_row"
+                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-luxgold focus:border-luxgold">
+                <option value="1" {% if cards_per_row == 1 %}selected{% endif %}>1</option>
+                <option value="2" {% if cards_per_row == 2 %}selected{% endif %}>2</option>
+                <option value="3" {% if cards_per_row == 3 %}selected{% endif %}>3</option>
+                <option value="4" {% if cards_per_row == 4 %}selected{% endif %}>4</option>
+                <option value="5" {% if cards_per_row == 5 %}selected{% endif %}>5</option>
+                <option value="6" {% if cards_per_row == 6 %}selected{% endif %}>6</option>
+            </select>
+        </div>
+
+        <div class="col-span-1 flex">
+            <button type="submit" class="bg-luxgold text-white px-4 py-2 rounded-md hover:bg-yellow-600 transition text-sm font-medium w-full">
                 Aplicar
             </button>
         </div>
     </form>
 
     <!-- Grid de Leilões -->
-    <div class="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+    <div class="grid gap-6 grid-cols-{{ cards_per_row }}">
         {% for leilao in leiloes %}
         {% set encerrado = leilao.tempo_fim < agora %}
         <div class="bg-white overflow-hidden shadow-md rounded-lg flex flex-col hover:shadow-xl transition">
@@ -78,10 +111,12 @@
                     <div class="flex items-center justify-center w-full h-full bg-gray-200 text-gray-500">Sem imagem</div>
                     {% endif %}
                 </div>
-                <div class="p-4 flex-grow">
-                    <h2 class="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">{{ leilao.titulo }}</h2>
-                    <p class="text-sm text-gray-600 mb-3 line-clamp-2">{{ leilao.descricao }}</p>
-                    <div class="flex justify-between items-center">
+                <div class="p-4 flex-grow flex flex-col justify-between">
+                    <div>
+                        <h2 class="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">{{ leilao.titulo }}</h2>
+                        <p class="text-sm text-gray-600 mb-3 line-clamp-2">{{ leilao.descricao }}</p>
+                    </div>
+                    <div class="flex justify-between items-center mt-2">
                         <span class="text-luxgold font-semibold">€{{ "{:,.2f}".format(leilao.lance_atual) }}</span>
                         <div class="flex items-center">
                             <svg class="w-4 h-4 text-yellow-400 mr-1" fill="currentColor" viewBox="0 0 20 20">
@@ -108,7 +143,7 @@
                     </span>
                 </div>
                 <div class="mt-2 w-full bg-gray-200 rounded-full h-2.5">
-                    <div class="bg-luxgold h-2.5 rounded-full transition-width duration-500" id="progress-bar-{{ leilao.id }}" style="width: 100%"></div>
+                    <div class="bg-luxgold h-2.5 rounded-full transition-width duration-500" id="progress-bar-{{ leilao.id }}" style="width: 0%"></div>
                 </div>
             </div>
         </div>
@@ -120,11 +155,76 @@
         Nenhum leilão encontrado com esses filtros.
     </div>
     {% endif %}
+
+    <!-- Paginação -->
+    {% if pagination.pages > 1 %}
+    <div class="flex flex-col items-center mt-8 space-y-2">
+        <p class="text-sm text-gray-700">Página {{ pagination.page }} de {{ pagination.pages }}</p>
+        <nav aria-label="Page navigation">
+            <ul class="inline-flex items-center space-x-1">
+                <!-- Página Anterior -->
+                {% if pagination.has_prev %}
+                <li>
+                    <a href="{{ url_for('dashboard', q=q, ano_fabricacao=ano_fabricacao, condicao=condicao, ordenar=ordenar, status=status, cards_per_row=cards_per_row, page=pagination.prev_num) }}" class="px-3 py-2 text-sm leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-md hover:bg-gray-100 hover:text-gray-700 transition">
+                        Anterior
+                    </a>
+                </li>
+                {% else %}
+                <li>
+                    <span class="px-3 py-2 text-sm leading-tight text-gray-400 bg-white border border-gray-300 rounded-l-md">
+                        Anterior
+                    </span>
+                </li>
+                {% endif %}
+
+                <!-- Número das Páginas -->
+                {% for p in pagination.iter_pages(left_edge=2, right_edge=2, left_current=2, right_current=2) %}
+                    {% if p %}
+                        {% if p == pagination.page %}
+                            <li>
+                                <span class="px-3 py-2 text-sm leading-tight text-white bg-luxgold border border-gray-300">{{ p }}</span>
+                            </li>
+                        {% else %}
+                            <li>
+                                <a href="{{ url_for('dashboard', q=q, ano_fabricacao=ano_fabricacao, condicao=condicao, ordenar=ordenar, status=status, cards_per_row=cards_per_row, page=p) }}" class="px-3 py-2 text-sm leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 transition">
+                                    {{ p }}
+                                </a>
+                            </li>
+                        {% endif %}
+                    {% else %}
+                        <li>
+                            <span class="px-3 py-2 text-sm leading-tight text-gray-500 bg-white border border-gray-300">...</span>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+
+                <!-- Próxima Página -->
+                {% if pagination.has_next %}
+                <li>
+                    <a href="{{ url_for('dashboard', q=q, ano_fabricacao=ano_fabricacao, condicao=condicao, ordenar=ordenar, status=status, cards_per_row=cards_per_row, page=pagination.next_num) }}" class="px-3 py-2 text-sm leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-md hover:bg-gray-100 hover:text-gray-700 transition">
+                        Próxima
+                    </a>
+                </li>
+                {% else %}
+                <li>
+                    <span class="px-3 py-2 text-sm leading-tight text-gray-400 bg-white border border-gray-300 rounded-r-md">
+                        Próxima
+                    </span>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
 </div>
 {% endblock %}
 
 {% block scripts %}
 <script>
+    /**
+     * Inicializa o contador regressivo e a barra de progresso para cada leilão.
+     * @param {Object} leilao - Dados do leilão.
+     */
     function initializeCountdown(leilao) {
         const countdownElement = document.getElementById(`countdown-${leilao.id}`);
         const progressBar = document.getElementById(`progress-bar-${leilao.id}`);
@@ -132,18 +232,19 @@
         // Ignora se não houver elementos
         if (!countdownElement || !progressBar) return;
         
-        const endTime = new Date(leilao.tempo_fim).getTime();
-        const totalDuration = 6 * 60 * 60 * 1000; // Exemplo de duração total: 6 horas
-        const startTime = endTime - totalDuration;
+        const tempoInicio = new Date(leilao.tempo_inicio).getTime();
+        const tempoFim = new Date(leilao.tempo_fim).getTime();
+        const totalDuration = tempoFim - tempoInicio;
 
         function updateCountdown() {
             const now = new Date().getTime();
-            const timeLeft = endTime - now;
+            const timeElapsed = now - tempoInicio;
+            const timeLeft = tempoFim - now;
 
             if (timeLeft <= 0) {
                 clearInterval(leilao.countdownInterval);
                 countdownElement.innerText = "Leilão encerrado";
-                progressBar.style.width = "0%";
+                progressBar.style.width = "100%";
                 progressBar.classList.remove('bg-luxgold');
                 progressBar.classList.add('bg-red-500');
                 return;
@@ -154,7 +255,8 @@
             const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
 
             countdownElement.innerText = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-            const progress = (timeLeft / totalDuration) * 100;
+            
+            const progress = (timeElapsed / totalDuration) * 100;
             progressBar.style.width = `${progress}%`;
         }
 
@@ -165,11 +267,37 @@
     document.addEventListener('DOMContentLoaded', function() {
         const leiloesData = {{ leiloes_data | tojson | safe }};
         leiloesData.forEach(leilao => {
+            const tempoInicio = new Date(leilao.tempo_inicio).getTime();
+            const tempoFim = new Date(leilao.tempo_fim).getTime();
             const agora = new Date().getTime();
-            const endTime = new Date(leilao.tempo_fim).getTime();
-            if (endTime > agora) { // Só inicializa se não estiver encerrado
+
+            if (tempoFim > agora) { // Só inicializa se não estiver encerrado
                 initializeCountdown(leilao);
+            } else {
+                const countdownElement = document.getElementById(`countdown-${leilao.id}`);
+                const progressBar = document.getElementById(`progress-bar-${leilao.id}`);
+                if (countdownElement) {
+                    countdownElement.innerText = "Leilão encerrado";
+                }
+                if (progressBar) {
+                    progressBar.style.width = "100%";
+                    progressBar.classList.remove('bg-luxgold');
+                    progressBar.classList.add('bg-red-500');
+                }
             }
+        });
+    });
+
+    // Atualização automática dos filtros ao alterar valores
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('filters-form');
+        const inputs = form.querySelectorAll('select, input[type="text"]');
+
+        inputs.forEach(input => {
+            input.addEventListener('change', function() {
+                // Submete o formulário automaticamente
+                form.submit();
+            });
         });
     });
 </script>
