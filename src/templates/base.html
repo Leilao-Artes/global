@@ -23,6 +23,8 @@
         }
     </script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
     <style>
         /* Custom scrollbar styles */
         ::-webkit-scrollbar {
@@ -68,26 +70,18 @@
                             <a href="#" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
                                 Meus Lances
                             </a>
-                            
                         </div>
                     </div>
                     <div class="hidden sm:ml-6 sm:flex sm:items-center">
-                        <button type="button" class="bg-white p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-luxgold">
-                            <span class="sr-only">Ver notificações</span>
-                            <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                            </svg>
-                        </button>
-
-                        <!-- Profile dropdown -->
-                        <div class="ml-3 relative">
-                            <div>
-                                <button type="button" class="bg-white flex text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-luxgold" id="user-menu-button" aria-expanded="false" aria-haspopup="true">
-                                    <span class="sr-only">Abrir menu do utilizador</span>
-                                    <img class="h-8 w-8 rounded-full" src="https://ui-avatars.com/api/?name=Usuario+Teste&background=C4A484&color=fff" alt="Foto de Perfil">
-                                </button>
-                            </div>
-                        </div>
+                        {% if current_user.is_authenticated %}
+                            <span class="mr-4 text-gray-800 text-sm font-medium">Olá, {{ current_user.name }}!</span>
+                            <a href="{{ url_for('logout') }}" class="bg-luxbrown text-luxwhite px-3 py-1 rounded hover:bg-luxgold focus:outline-none focus:ring-2 focus:ring-luxgold text-sm font-medium">
+                                Sair
+                            </a>
+                        {% else %}
+                            <a href="{{ url_for('login') }}" class="text-gray-600 hover:text-luxgold mx-2">Entrar</a>
+                            <a href="{{ url_for('register') }}" class="text-gray-600 hover:text-luxgold mx-2">Registar</a>
+                        {% endif %}
                     </div>
                     <div class="-mr-2 flex items-center sm:hidden">
                         <!-- Mobile menu button -->
@@ -113,19 +107,29 @@
                 </div>
                 <div class="pt-4 pb-3 border-t border-gray-200">
                     <div class="flex items-center px-4">
-                        <div class="flex-shrink-0">
-                            <img class="h-10 w-10 rounded-full" src="https://ui-avatars.com/api/?name=Usuario+Teste&background=C4A484&color=fff" alt="Foto de Perfil">
-                        </div>
-                        <div class="ml-3">
-                            <div class="text-base font-medium text-gray-800">Usuário Teste</div>
-                            <div class="text-sm font-medium text-gray-500">usuario@exemplo.com</div>
-                        </div>
-                        <button type="button" class="ml-auto bg-white flex-shrink-0 p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-luxgold">
-                            <span class="sr-only">Ver notificações</span>
-                            <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                            </svg>
-                        </button>
+                        {% if current_user.is_authenticated %}
+                            <img class="h-10 w-10 rounded-full" src="https://ui-avatars.com/api/?name={{ current_user.name }}&background=C4A484&color=fff" alt="Foto de Perfil">
+                            <div class="ml-3">
+                                <div class="text-base font-medium text-gray-800">{{ current_user.name }}</div>
+                                <div class="text-sm font-medium text-gray-500">{{ current_user.email }}</div>
+                            </div>
+                            <a href="{{ url_for('logout') }}" class="ml-auto bg-white flex-shrink-0 p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-luxgold">
+                                <span class="sr-only">Sair</span>
+                                <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7" />
+                                </svg>
+                            </a>
+                        {% else %}
+                            <img class="h-10 w-10 rounded-full" src="https://ui-avatars.com/api/?name=Visitante&background=C4A484&color=fff" alt="Foto de Perfil">
+                            <div class="ml-3">
+                                <div class="text-base font-medium text-gray-800">Visitante</div>
+                                <div class="text-sm font-medium text-gray-500">Sem login</div>
+                            </div>
+                            <div class="mt-4 flex space-x-2">
+                                <a href="{{ url_for('login') }}" class="text-luxgold font-medium hover:underline">Entrar</a>
+                                <a href="{{ url_for('register') }}" class="text-luxgold font-medium hover:underline">Registar</a>
+                            </div>
+                        {% endif %}
                     </div>
                 </div>
             </div>
@@ -147,6 +151,34 @@
     </div>
 
     {% block scripts %}{% endblock %}
+
+    <script>
+        // Flash messages as toasts
+        {% with messages = get_flashed_messages(with_categories=True) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                Toastify({
+                    text: "{{ message }}",
+                    duration: 3000,
+                    close: true,
+                    gravity: "top",
+                    position: "right",
+                    backgroundColor: "{% if category == 'success' %}#10B981{% elif category == 'error' %}#EF4444{% else %}#3B82F6{% endif %}",
+                    stopOnFocus: true,
+                }).showToast();
+            {% endfor %}
+        {% endif %}
+        {% endwith %}
+
+        // Mobile menu toggle
+        const mobileMenuButton = document.querySelector('[aria-controls="mobile-menu"]');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        mobileMenuButton.addEventListener('click', () => {
+            const expanded = mobileMenuButton.getAttribute('aria-expanded') === 'true' || false;
+            mobileMenuButton.setAttribute('aria-expanded', !expanded);
+            mobileMenu.classList.toggle('hidden');
+        });
+    </script>
 </body>
 </html>
-

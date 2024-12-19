@@ -1,38 +1,97 @@
 {% extends 'base.html' %}
-{% block title %}Criar Leilão{% endblock %}
+{% block title %}Criar Leilão - BID FLOW{% endblock %}
 {% block content %}
-<div class="bg-white p-6 rounded shadow-md">
-    <h1 class="text-2xl font-bold mb-4">Criar Novo Leilão</h1>
-    <form method="post">
-        <div class="mb-4">
-            <label class="block text-gray-700">Título</label>
-            <input name="titulo" type="text" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" placeholder="Título do Leilão">
-        </div>
-        <div class="mb-4">
-            <label class="block text-gray-700">Lance Inicial (€)</label>
-            <input name="lance_inicial" type="text" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" placeholder="Ex: 1000">
-        </div>
-        <div class="mb-4">
-            <label class="block text-gray-700">Descrição</label>
-            <textarea name="descricao" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" placeholder="Descrição detalhada da arte"></textarea>
-        </div>
-        <div class="mb-4">
-            <label class="block text-gray-700">Local de Entrega</label>
-            <input name="local_de_entrega" type="text" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" placeholder="Ex: Paris, França">
-        </div>
-        <div class="mb-4">
-            <label class="block text-gray-700">Ano de Fabricação</label>
-            <input name="ano_fabricacao" type="text" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" placeholder="Ex: 1900">
-        </div>
-        <div class="mb-4">
-            <label class="block text-gray-700">Condição</label>
-            <input name="condicao" type="text" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" placeholder="Ex: Excelente">
-        </div>
-        <div class="mb-4">
-            <label class="block text-gray-700">Duração do Leilão (horas)</label>
-            <input name="horas" type="text" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" placeholder="Ex: 5 (padrão se vazio)">
-        </div>
-        <button type="submit" class="px-4 py-2 bg-luxgold text-white rounded hover:bg-yellow-600">Criar</button>
-    </form>
+<div class="bg-luxbeige min-h-screen py-6 sm:py-12">
+    <div class="max-w-4xl mx-auto bg-white p-6 sm:p-8 rounded-lg shadow-md">
+        <h1 class="text-3xl font-bold mb-6 text-center text-luxbrown">Criar Novo Leilão</h1>
+        <form method="post" enctype="multipart/form-data" class="space-y-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div>
+                    <label for="titulo" class="block text-sm font-medium text-gray-700 mb-1">Título</label>
+                    <input id="titulo" name="titulo" type="text" required class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-luxgold focus:border-luxgold">
+                </div>
+                <div>
+                    <label for="lance_inicial" class="block text-sm font-medium text-gray-700 mb-1">Lance Inicial (€)</label>
+                    <input id="lance_inicial" name="lance_inicial" type="number" step="0.01" required class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-luxgold focus:border-luxgold">
+                </div>
+            </div>
+
+            <div>
+                <label for="descricao" class="block text-sm font-medium text-gray-700 mb-1">Descrição</label>
+                <textarea id="descricao" name="descricao" rows="4" required class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-luxgold focus:border-luxgold"></textarea>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div>
+                    <label for="local_de_entrega" class="block text-sm font-medium text-gray-700 mb-1">Local de Entrega</label>
+                    <input id="local_de_entrega" name="local_de_entrega" type="text" required class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-luxgold focus:border-luxgold">
+                </div>
+                <div>
+                    <label for="ano_fabricacao" class="block text-sm font-medium text-gray-700 mb-1">Ano de Fabricação</label>
+                    <input id="ano_fabricacao" name="ano_fabricacao" type="number" required class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-luxgold focus:border-luxgold">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div>
+                    <label for="condicao" class="block text-sm font-medium text-gray-700 mb-1">Condição</label>
+                    <select id="condicao" name="condicao" required class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-luxgold focus:border-luxgold">
+                        <option value="">Selecione a condição</option>
+                        <option value="Novo">Novo</option>
+                        <option value="Excelente">Excelente</option>
+                        <option value="Bom">Bom</option>
+                        <option value="Regular">Regular</option>
+                        <option value="Usado">Usado</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="horas" class="block text-sm font-medium text-gray-700 mb-1">Duração do Leilão (horas)</label>
+                    <input id="horas" name="horas" type="number" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-luxgold focus:border-luxgold">
+                </div>
+            </div>
+
+            <div>
+                <label for="imagens" class="block text-sm font-medium text-gray-700 mb-1">Imagens do Produto</label>
+                <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
+                    <div class="space-y-1 text-center">
+                        <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
+                            <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        <div class="flex text-sm text-gray-600">
+                            <label for="imagens" class="relative cursor-pointer bg-white rounded-md font-medium text-luxgold hover:text-luxbrown focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-luxgold">
+                                <span>Carregar imagens</span>
+                                <input id="imagens" name="imagens" type="file" multiple class="sr-only" accept=".png,.jpg,.jpeg">
+                            </label>
+                            <p class="pl-1">ou arraste e solte</p>
+                        </div>
+                        <p class="text-xs text-gray-500">PNG, JPG, JPEG até 10MB</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-center">
+                <button type="submit" class="px-6 py-3 bg-luxgold text-white rounded-md font-semibold hover:bg-luxbrown transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-luxgold">
+                    Criar Leilão
+                </button>
+            </div>
+        </form>
+    </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', (event) => {
+        const fileInput = document.getElementById('imagens');
+        const fileLabel = fileInput.nextElementSibling;
+        const defaultLabelText = fileLabel.textContent;
+
+        fileInput.addEventListener('change', (e) => {
+            if (fileInput.files.length > 0) {
+                fileLabel.textContent = `${fileInput.files.length} arquivo(s) selecionado(s)`;
+            } else {
+                fileLabel.textContent = defaultLabelText;
+            }
+        });
+    });
+</script>
 {% endblock %}
+
