@@ -11,13 +11,13 @@
                 <div class="grid grid-cols-1 gap-4">
                     <!-- Imagem Principal -->
                     <div class="aspect-w-16 aspect-h-9 overflow-hidden rounded-lg shadow-lg">
-                        <img src="{{ leilao.detalhes_imagens[0].url }}" alt="{{ leilao.detalhes_imagens[0].alt }}" class="object-cover w-full h-full cursor-pointer transition-transform duration-300 hover:scale-105" onclick="openModal(this.src, '{{ leilao.detalhes_imagens[0].alt }}')">
+                        <img src="{{ leilao.detalhes_imagens[0].url }}" alt="{{ leilao.detalhes_imagens[0].alt }}" loading="lazy" class="object-cover w-full h-full max-w-full h-auto cursor-pointer transition-transform duration-300 hover:scale-105" onclick="openModal(this.src, '{{ leilao.detalhes_imagens[0].alt }}')">
                     </div>
                     <!-- Grade de Imagens Detalhadas -->
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
                         {% for detalhe in leilao.detalhes_imagens[1:] %}
                         <div class="aspect-w-1 aspect-h-1 overflow-hidden rounded-lg shadow-md">
-                            <img src="{{ detalhe.url }}" alt="{{ detalhe.alt }}" class="object-cover w-full h-full hover:opacity-75 transition-all duration-300 cursor-pointer hover:scale-105" onclick="openModal(this.src, '{{ detalhe.alt }}')">
+                            <img src="{{ detalhe.url }}" alt="{{ detalhe.alt }}" loading="lazy" class="object-cover w-full h-full max-w-full h-auto hover:opacity-75 transition-all duration-300 cursor-pointer hover:scale-105" onclick="openModal(this.src, '{{ detalhe.alt }}')">
                         </div>
                         {% endfor %}
                     </div>
@@ -101,7 +101,7 @@
     <div id="imageModal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 hidden">
         <div class="relative">
             <button onclick="closeModal()" class="absolute top-0 right-0 mt-4 mr-4 text-white text-3xl font-bold">&times;</button>
-            <img id="modalImage" src="" alt="" class="max-w-full max-h-screen rounded-lg">
+            <img id="modalImage" src="" alt="" class="object-contain max-w-full max-h-screen rounded-lg">
             <p id="modalAlt" class="mt-2 text-center text-white text-lg"></p>
         </div>
     </div>
@@ -215,8 +215,19 @@
 
                 // Atualizar Histórico de Lances
                 const historicoLancesElement = document.getElementById('historico_lances');
-                if (historicoLancesElement && data.id) {
-                    // Aqui você pode atualizar o histórico de lances conforme necessário
+                if (historicoLancesElement && data.historico_lances) {
+                    historicoLancesElement.innerHTML = '';
+                    data.historico_lances.forEach(lance => {
+                        historicoLancesElement.innerHTML += `
+                            <li class="flex items-center py-4">
+                                <img src="${lance.imagem}" alt="${lance.nome}" class="h-10 w-10 rounded-full">
+                                <div class="ml-4">
+                                    <p class="text-sm font-medium text-gray-800">${lance.nome}</p>
+                                    <p class="text-sm text-gray-500">€${Number(lance.valor).toLocaleString('de-DE', {minimumFractionDigits: 2, maximumFractionDigits: 2})} - ${lance.tempo}</p>
+                                </div>
+                            </li>
+                        `;
+                    });
                 }
             });
 
