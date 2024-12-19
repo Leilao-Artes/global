@@ -1,159 +1,151 @@
 <!DOCTYPE html>
-<html lang="pt-PT" class="h-full bg-gray-50">
+<html lang="pt-PT" class="h-full bg-gray-100">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Inspeção de Leilão de Luxo{% endblock %}</title>
+    <title>{% block title %}BID FLOW - Leilões de Arte{% endblock %}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        gold: {
-                            50: '#FFFBEA',
-                            100: '#FFF6D6',
-                            200: '#FFE7A0',
-                            300: '#FFD86A',
-                            400: '#FFC934',
-                            500: '#FFBB00',
-                            600: '#E6A800',
-                            700: '#B38600',
-                            800: '#806100',
-                            900: '#4D3A00',
-                        },
+                        'luxwhite': '#FEFEFA',
+                        'luxbeige': '#F5F5ED',
+                        'luxbrown': '#C4A484',
+                        'luxgold': '#D4AF37',
                     },
                     fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
+                        'sans': ['Inter', 'sans-serif'],
                     },
                 },
             },
         }
     </script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
     <style>
+        /* Custom scrollbar styles */
         ::-webkit-scrollbar {
-            width: 12px;
+            width: 8px;
         }
         ::-webkit-scrollbar-track {
             background: #f1f1f1;
         }
         ::-webkit-scrollbar-thumb {
-            background-color: #FFBB00;
-            border-radius: 6px;
-            border: 3px solid #f1f1f1;
+            background: #C4A484;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #D4AF37;
         }
         * {
             scrollbar-width: thin;
-            scrollbar-color: #FFBB00 #f1f1f1;
-        }
-        body {
-            padding-bottom: 64px;
-        }
-        /* Estilos para notificações Flash */
-        .flash-container {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 1000;
-            max-width: 300px;
-        }
-        /* Transições para notificações */
-        .flash-message {
-            transition: opacity 0.5s ease, transform 0.5s ease;
-        }
-        .flash-message.hidden {
-            opacity: 0;
-            transform: translateY(-20px);
+            scrollbar-color: #C4A484 #f1f1f1;
         }
     </style>
 </head>
 <body class="h-full font-sans antialiased">
-    <div class="min-h-full bg-gradient-to-br from-gray-50 to-gold-50">
-        <header class="bg-white shadow-sm fixed top-0 left-0 right-0 z-50">
-            <nav class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                <div class="flex h-16 justify-between items-center">
-                    <div class="flex items-center">
-                        <a href="{{ url_for('dashboard') }}" class="flex-shrink-0">
-                            <img class="h-8 w-auto" src="https://tailwindui.com/img/logos/mark.svg?color=gold&shade=600" alt="Logo Leilões de Luxo">
-                        </a>
-                        <div class="hidden md:block">
-                            <div class="ml-10 flex items-baseline space-x-4">
-                                <a href="{{ url_for('dashboard') }}" class="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium">Leilões</a>
-                                <a href="#" class="text-gray-900 px-3 py-2 rounded-md text-sm font-medium" aria-current="page">Inspeção</a>
-                                <a href="#" class="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium">Os Meus Lances</a>
-                            </div>
+    <div class="min-h-full flex flex-col">
+        <header class="bg-white shadow-sm">
+            <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between h-16">
+                    <div class="flex">
+                        <div class="flex-shrink-0 flex items-center">
+                            <a href="{{ url_for('dashboard') }}" class="flex items-center">
+                                <svg class="h-8 w-8 text-luxgold" fill="currentColor" viewBox="0 0 20 20">
+                                    <circle cx="10" cy="10" r="8" />
+                                </svg>
+                                <span class="ml-2 text-luxgold font-bold text-lg">BID FLOW</span>
+                            </a>
+                        </div>
+                        <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
+                            <a href="{{ url_for('dashboard') }}" class="border-luxgold text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                                Leilões
+                            </a>
+                            <a href="#" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                                Artes
+                            </a>
+                            <a href="#" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                                Meus Lances
+                            </a>
                         </div>
                     </div>
-                    <div class="flex items-center">
-                        <button type="button" class="rounded-full bg-white p-1 text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gold-500 focus:ring-offset-2">
+                    <div class="hidden sm:ml-6 sm:flex sm:items-center">
+                        <button type="button" class="bg-white p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-luxgold">
                             <span class="sr-only">Ver notificações</span>
-                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
+                            <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                             </svg>
                         </button>
+
+                        <!-- Profile dropdown -->
                         <div class="ml-3 relative">
                             <div>
-                                <button type="button" class="flex rounded-full bg-white text-sm focus:outline-none focus:ring-2 focus:ring-gold-500 focus:ring-offset-2" id="user-menu-button" aria-expanded="false" aria-haspopup="true">
+                                <button type="button" class="bg-white flex text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-luxgold" id="user-menu-button" aria-expanded="false" aria-haspopup="true">
                                     <span class="sr-only">Abrir menu do utilizador</span>
-                                    <img class="h-8 w-8 rounded-full" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt="Foto de Perfil">
+                                    <img class="h-8 w-8 rounded-full" src="https://ui-avatars.com/api/?name=Usuario+Teste&background=C4A484&color=fff" alt="Foto de Perfil">
                                 </button>
                             </div>
                         </div>
                     </div>
+                    <div class="-mr-2 flex items-center sm:hidden">
+                        <!-- Mobile menu button -->
+                        <button type="button" class="bg-white inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-luxgold" aria-controls="mobile-menu" aria-expanded="false">
+                            <span class="sr-only">Abrir menu principal</span>
+                            <svg class="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                            </svg>
+                            <svg class="hidden h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
                 </div>
             </nav>
+
+            <!-- Mobile menu, show/hide based on menu state. -->
+            <div class="sm:hidden" id="mobile-menu">
+                <div class="pt-2 pb-3 space-y-1">
+                    <a href="{{ url_for('dashboard') }}" class="bg-luxbeige border-luxgold text-luxbrown block pl-3 pr-4 py-2 border-l-4 text-base font-medium">Leilões</a>
+                    <a href="#" class="border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800 block pl-3 pr-4 py-2 border-l-4 text-base font-medium">Artes</a>
+                    <a href="#" class="border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800 block pl-3 pr-4 py-2 border-l-4 text-base font-medium">Meus Lances</a>
+                </div>
+                <div class="pt-4 pb-3 border-t border-gray-200">
+                    <div class="flex items-center px-4">
+                        <div class="flex-shrink-0">
+                            <img class="h-10 w-10 rounded-full" src="https://ui-avatars.com/api/?name=Usuario+Teste&background=C4A484&color=fff" alt="Foto de Perfil">
+                        </div>
+                        <div class="ml-3">
+                            <div class="text-base font-medium text-gray-800">Usuário Teste</div>
+                            <div class="text-sm font-medium text-gray-500">usuario@exemplo.com</div>
+                        </div>
+                        <button type="button" class="ml-auto bg-white flex-shrink-0 p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-luxgold">
+                            <span class="sr-only">Ver notificações</span>
+                            <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
         </header>
 
-        <!-- Container para Notificações Flash -->
-        <div class="flash-container">
-            {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                    {% for category, message in messages %}
-                        <div class="flash-message mb-4">
-                            <div class="max-w-sm w-full bg-{{ 'green' if category == 'success' else 'red' }}-100 border border-{{ 'green' if category == 'success' else 'red' }}-400 text-{{ 'green' if category == 'success' else 'red' }}-700 px-4 py-3 rounded relative" role="alert">
-                                <strong class="font-bold">{{ 'Sucesso!' if category == 'success' else 'Erro!' }}</strong>
-                                <span class="block sm:inline">{{ message }}</span>
-                                <span class="absolute top-0 bottom-0 right-0 px-4 py-3 cursor-pointer" onclick="this.parentElement.parentElement.classList.add('hidden')">
-                                    <svg class="fill-current h-6 w-6 text-{{ 'green' if category == 'success' else 'red' }}-500" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                                        <title>Fechar</title>
-                                        <path d="M14.348 5.652a.5.5 0 00-.707 0L10 9.293 6.36 5.652a.5.5 0 10-.707.707L9.293 10l-3.64 3.64a.5.5 0 00.707.707L10 10.707l3.64 3.64a.5.5 0 00.707-.707L10.707 10l3.64-3.64a.5.5 0 000-.708z"/>
-                                    </svg>
-                                </span>
-                            </div>
-                        </div>
-                    {% endfor %}
-                {% endif %}
-            {% endwith %}
-        </div>
-
-        <main class="pt-16 pb-16">
-            {% block content %}
-            {% endblock %}
+        <main class="flex-grow">
+            <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+                {% block content %}{% endblock %}
+            </div>
         </main>
+
+        <footer class="bg-white">
+            <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
+                <p class="text-center text-sm text-gray-500">
+                    &copy; 2024 BID FLOW. Todos os direitos reservados.
+                </p>
+            </div>
+        </footer>
     </div>
 
-    <footer class="fixed bottom-0 left-0 right-0 bg-white shadow-inner z-40">
-        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div class="border-t border-gray-200 py-4 text-center text-sm text-gray-500">
-                &copy; 2024 Leilões de Luxo. Todos os direitos reservados.
-            </div>
-        </div>
-    </footer>
-
-    {% block scripts %}
-    <script>
-        // Fechamento Automático de Notificações Flash após 5 segundos
-        document.addEventListener('DOMContentLoaded', function() {
-            const flashMessages = document.querySelectorAll('.flash-message');
-            flashMessages.forEach(message => {
-                setTimeout(() => {
-                    message.classList.add('hidden');
-                }, 5000); // 5 segundos
-            });
-        });
-    </script>
-    {% endblock %}
+    {% block scripts %}{% endblock %}
 </body>
 </html>
+

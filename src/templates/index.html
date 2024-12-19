@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}{{ leilao.titulo }} - Inspeção de Leilão de Luxo{% endblock %}
+{% block title %}{{ leilao.titulo }} - BID FLOW{% endblock %}
 
 {% block content %}
 <main class="py-10">
@@ -26,61 +26,59 @@
 
             <!-- Seção de Detalhes do Leilão -->
             <div class="mt-10 lg:col-span-5 lg:mt-0">
-                <h1 class="text-3xl font-bold tracking-tight text-gray-900">{{ leilao.titulo }}</h1>
+                <h1 class="text-3xl font-bold tracking-tight text-luxgold">{{ leilao.titulo }}</h1>
                 <div class="mt-4">
-                    <h2 class="sr-only">Informações do Leilão</h2>
-                    <p class="text-lg text-gray-900">Lance Atual: <span class="font-semibold text-gold-600">€{{ "{:,.2f}".format(leilao.lance_atual) }}</span></p>
+                    <p class="text-lg text-gray-800">Lance Atual: <span class="font-semibold text-luxbrown">€{{ "{:,.2f}".format(leilao.lance_atual) }}</span></p>
+                    <p class="mt-1 text-sm text-gray-500">Local de Entrega: {{ leilao.local_de_entrega }} | Ano: {{ leilao.ano_fabricacao }} | Condição: {{ leilao.condicao }}</p>
                 </div>
                 <div class="mt-4">
                     <div class="flex items-center">
                         <div class="flex items-center">
                             {% for i in range(leilao.media_avaliacoes_int) %}
-                            <svg class="text-gold-500 h-5 w-5 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                                <path fill-rule="evenodd" d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z" clip-rule="evenodd" />
+                            <svg class="text-luxgold h-5 w-5 flex-shrink-0" fill="currentColor" aria-hidden="true" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z" clip-rule="evenodd"/>
                             </svg>
                             {% endfor %}
                         </div>
-                        <p class="ml-3 text-sm text-gray-700">{{ leilao.media_avaliacoes }} ({{ leilao.avaliacoes }} avaliações)</p>
+                        <p class="ml-3 text-sm text-gray-500">{{ leilao.media_avaliacoes }} ({{ leilao.avaliacoes }} avaliações)</p>
                     </div>
                 </div>
                 <div class="mt-6">
                     <h3 class="sr-only">Descrição</h3>
-                    <div class="space-y-6 text-base text-gray-700">
+                    <div class="space-y-6 text-base text-gray-600">
                         <p>{{ leilao.descricao }}</p>
                     </div>
                 </div>
                 <div class="mt-8">
                     <div class="flex items-center justify-between">
-                        <h3 class="text-sm font-medium text-gray-900">Tempo Restante</h3>
+                        <h3 class="text-sm font-medium text-gray-700">Tempo Restante</h3>
                         <p class="text-sm font-medium text-gray-500" id="countdown">{{ leilao.tempo_fim_str }}</p>
                     </div>
                     <div class="mt-2 h-2 w-full bg-gray-200 rounded-full overflow-hidden">
-                        <div id="progress-bar" class="h-full bg-gold-500 rounded-full" style="width: 100%"></div>
+                        <div id="progress-bar" class="h-full bg-luxbrown rounded-full" style="width: 100%"></div>
                     </div>
                 </div>
                 <div class="mt-10">
-                    <h3 class="text-sm font-medium text-gray-900">Dar Lance</h3>
+                    <h3 class="text-sm font-medium text-gray-700">Dar Lance</h3>
                     <form class="mt-4" action="{{ url_for('leilao_inspecao', leilao_id=leilao.id) }}" method="POST">
                         <input type="hidden" name="leilao_id" value="{{ leilao.id }}">
-                        <input type="hidden" name="nome" value="Usuário"> <!-- Placeholder para o nome do usuário -->
+                        <input type="hidden" name="nome" value="Usuário">
                         <div class="flex rounded-md shadow-sm">
-                            <span class="inline-flex items-center rounded-l-md border border-r-0 border-gray-300 bg-gray-50 px-3 text-gray-500 sm:text-sm">
-                                €
-                            </span>
-                            <input type="number" name="price" id="price" step="0.01" min="{{ leilao.lance_atual + 0.01 }}" class="block w-full min-w-0 flex-1 rounded-none rounded-r-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gold-600 sm:text-sm sm:leading-6" placeholder="0.00" aria-describedby="price-currency" required>
+                            <span class="inline-flex items-center rounded-l-md border border-r-0 border-gray-300 bg-gray-50 px-3 text-gray-500 sm:text-sm">€</span>
+                            <input type="number" name="price" id="price" step="0.01" min="{{ leilao.lance_atual + 0.01 }}" class="block w-full min-w-0 flex-1 rounded-none rounded-r-md border-gray-300 py-1.5 text-gray-700 placeholder:text-gray-400 focus:ring-luxbrown focus:border-luxbrown sm:text-sm sm:leading-6" placeholder="0.00" required>
                         </div>
-                        <button type="submit" class="mt-6 flex w-full items-center justify-center rounded-md border border-transparent bg-gold-600 px-8 py-3 text-base font-medium text-white hover:bg-gold-700 focus:outline-none focus:ring-2 focus:ring-gold-500 focus:ring-offset-2 transition-colors duration-300">Dar Lance</button>
+                        <button type="submit" class="mt-6 flex w-full items-center justify-center rounded-md border border-transparent bg-luxgold px-8 py-3 text-base font-medium text-white hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-luxgold focus:ring-offset-2 transition-colors duration-300">Dar Lance</button>
                     </form>
                 </div>
                 <div class="mt-10 border-t border-gray-200 pt-10">
-                    <h3 class="text-sm font-medium text-gray-900">Histórico de Lances</h3>
+                    <h3 class="text-sm font-medium text-gray-700">Histórico de Lances ({{ leilao.total_lances }})</h3>
                     <div class="mt-4 flow-root">
                         <ul role="list" class="-my-4 divide-y divide-gray-200">
                             {% for lance in leilao.historico_lances %}
                             <li class="flex items-center py-4">
                                 <img src="{{ lance.imagem }}" alt="{{ lance.nome }}" class="h-10 w-10 rounded-full">
                                 <div class="ml-4">
-                                    <p class="text-sm font-medium text-gray-900">{{ lance.nome }}</p>
+                                    <p class="text-sm font-medium text-gray-800">{{ lance.nome }}</p>
                                     <p class="text-sm text-gray-500">€{{ "{:,.2f}".format(lance.valor) }} - {{ lance.tempo }}</p>
                                 </div>
                             </li>
@@ -130,8 +128,7 @@
     const progressBar = document.getElementById('progress-bar');
     const endTime = new Date("{{ leilao.tempo_fim_str }}").getTime();
 
-    // Supondo que a duração total seja 2.5 horas (para o cálculo da barra de progresso)
-    const totalDuration = 2.5 * 60 * 60 * 1000; // 2.5 horas em milissegundos
+    const totalDuration = 6 * 60 * 60 * 1000; // Ajuste conforme desejado.
     const startTime = endTime - totalDuration;
 
     function updateCountdown() {
