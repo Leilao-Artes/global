@@ -1,401 +1,300 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="pt-PT" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="description" content="A tua plataforma exclusiva para descobrir, avaliar e licitar em obras de arte autênticas. Leilões online com segurança, transparência e luxo." />
+    <meta name="keywords" content="Leilões, Arte, Investimento, Colecionismo, Obras de Arte, Luxo" />
+    <meta name="author" content="BID FLOW" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BID FLOW - Leilões Exclusivos de Arte</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        // Paleta atualizada para tons mais suaves e luxuosos
+                        'luxcream': '#FCFAF5', 
+                        'luxgold': '#D4AF37',
+                        'luxbrown': '#7F675B',
+                        'luxtext': '#2C2C2C',
+                    },
+                    fontFamily: {
+                        'serif': ['Merriweather', 'serif'],
+                        'sans': ['Inter', 'sans-serif'],
+                    },
+                },
+            },
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Merriweather:wght@300;400;700;900&display=swap" rel="stylesheet">
+</head>
+<body class="bg-luxcream font-sans text-luxtext">
 
-{% block title %}{{ leilao.titulo }} - BID FLOW{% endblock %}
-
-{% block content %}
-<main class="py-12 bg-luxcream">
-    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex flex-col lg:flex-row lg:space-x-12">
-            
-            <!-- Seção de Imagens -->
-            <div class="lg:w-2/3 space-y-6">
-                <!-- Imagem Principal -->
-                <div class="relative">
-                    <img 
-                        src="{{ leilao.detalhes_imagens[0].url }}" 
-                        alt="{{ leilao.detalhes_imagens[0].alt }}" 
-                        class="w-full h-auto rounded-lg shadow-lg object-cover cursor-pointer transition-transform duration-300 hover:scale-105"
-                        onclick="openModal(this.src, '{{ leilao.detalhes_imagens[0].alt }}')"
-                    >
-                    <button 
-                        class="absolute top-4 right-4 bg-white bg-opacity-75 rounded-full p-2 hover:bg-opacity-100 transition"
-                        onclick="openModal(this.previousElementSibling.src, '{{ leilao.detalhes_imagens[0].alt }}')"
-                        aria-label="Ampliar imagem principal"
-                    >
-                        <svg class="h-6 w-6 text-luxbrown" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                        </svg>
-                    </button>
-                </div>
-
-                <!-- Grade de Imagens Detalhadas -->
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                    {% for detalhe in leilao.detalhes_imagens[1:] %}
-                    <div class="relative">
-                        <img 
-                            src="{{ detalhe.url }}" 
-                            alt="{{ detalhe.alt }}" 
-                            class="w-full h-24 sm:h-32 md:h-40 rounded-lg shadow-md object-cover cursor-pointer transition-transform duration-300 hover:scale-105 hover:opacity-80"
-                            onclick="openModal(this.src, '{{ detalhe.alt }}')"
-                        >
-                        <button 
-                            class="absolute top-2 right-2 bg-white bg-opacity-75 rounded-full p-1 hover:bg-opacity-100 transition"
-                            onclick="openModal(this.parentElement.querySelector('img').src, '{{ detalhe.alt }}')"
-                            aria-label="Ampliar imagem"
-                        >
-                            <svg class="h-4 w-4 text-luxbrown" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                            </svg>
-                        </button>
-                    </div>
-                    {% endfor %}
+    <!-- Cabeçalho / Navegação -->
+    <header class="fixed w-full z-20 bg-luxcream bg-opacity-95 border-b border-luxbrown/30">
+        <nav class="container mx-auto px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <a href="{{ url_for('landing_page') }}" class="flex items-center space-x-2 text-luxgold font-bold">
+                    <svg class="h-8 w-8" fill="currentColor" viewBox="0 0 20 20">
+                        <circle cx="10" cy="10" r="8" />
+                    </svg>
+                    <span class="font-serif text-xl tracking-wide">BID FLOW</span>
+                </a>
+                <div class="hidden md:flex items-center space-x-8 font-medium">
+                    <a href="#recursos" class="text-luxtext hover:text-luxgold transition duration-300">Recursos</a>
+                    <a href="#leiloes" class="text-luxtext hover:text-luxgold transition duration-300">Leilões Ativos</a>
+                    <a href="#depoimentos" class="text-luxtext hover:text-luxgold transition duration-300">Depoimentos</a>
+                    {% if current_user.is_authenticated %}
+                        <a href="{{ url_for('dashboard') }}" class="bg-luxgold text-white px-4 py-2 rounded hover:opacity-90 transition duration-300">Dashboard</a>
+                        <a href="{{ url_for('logout') }}" class="border border-luxgold text-luxtext px-4 py-2 rounded hover:bg-luxgold hover:text-white transition duration-300">Sair</a>
+                    {% else %}
+                        <a href="{{ url_for('login') }}" class="bg-luxgold text-white px-4 py-2 rounded hover:opacity-90 transition duration-300">Entrar</a>
+                        <a href="{{ url_for('register') }}" class="border border-luxgold text-luxtext px-4 py-2 rounded hover:bg-luxgold hover:text-white transition duration-300">Criar Conta</a>
+                    {% endif %}
                 </div>
             </div>
+        </nav>
+    </header>
 
-            <!-- Seção de Detalhes do Leilão -->
-            <div class="lg:w-1/3 bg-white rounded-lg shadow-md p-6">
-                <h1 class="text-2xl lg:text-3xl font-bold text-luxgold">{{ leilao.titulo }}</h1>
-                
-                <!-- Detalhes Básicos -->
-                <div class="mt-4">
-                    <p class="text-lg text-gray-800">
-                        Lance Atual: 
-                        <span class="font-semibold text-luxbrown" id="lance_atual">
-                            €{{ "{:,.2f}".format(leilao.lance_atual) }}
-                        </span>
-                    </p>
-                    <p class="mt-1 text-sm text-gray-500">
-                        <span id="local_de_entrega">Local: {{ leilao.local_de_entrega }}</span> | 
-                        <span id="ano_fabricacao">Ano: {{ leilao.ano_fabricacao }}</span> | 
-                        <span id="condicao">Condição: {{ leilao.condicao }}</span>
-                    </p>
-                </div>
-
-                <!-- Avaliações -->
-                <div class="mt-4 flex items-center">
-                    <div class="flex items-center" id="avaliacoes" aria-label="Avaliação de estrelas">
-                        {% for i in range(leilao.media_avaliacoes_int) %}
-                        <svg class="text-luxgold h-5 w-5 flex-shrink-0" fill="currentColor" aria-hidden="true" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z" clip-rule="evenodd"/>
-                        </svg>
-                        {% endfor %}
-                    </div>
-                    <p class="ml-3 text-sm text-gray-500" id="media_avaliacoes">
-                        {{ leilao.media_avaliacoes }} ({{ leilao.avaliacoes }} avaliações)
-                    </p>
-                </div>
-
-                <!-- Descrição -->
-                <div class="mt-6">
-                    <h2 class="sr-only">Descrição</h2>
-                    <p class="text-base text-gray-600" id="descricao">
-                        {{ leilao.descricao }}
-                    </p>
-                </div>
-
-                {% if not leilao.encerrado %}
-                <!-- Tempo Restante -->
-                <div class="mt-6">
-                    <div class="flex justify-between items-center">
-                        <h3 class="text-sm font-medium text-gray-700">Tempo Restante</h3>
-                        <p class="text-sm font-medium text-gray-500" id="countdown">{{ leilao.tempo_fim_str }}</p>
-                    </div>
-                    <div class="mt-2 h-2 w-full bg-gray-200 rounded-full overflow-hidden">
-                        <div id="progress-bar" class="h-full bg-luxbrown rounded-full" style="width: 100%"></div>
-                    </div>
-                </div>
-
-                <!-- Formulário de Lance -->
-                <div class="mt-8">
-                    <h3 class="text-sm font-medium text-gray-700">Dar Lance</h3>
-                    <form class="mt-4" action="{{ url_for('leilao_inspecao', leilao_id=leilao.id) }}" method="POST">
-                        <input type="hidden" name="leilao_id" value="{{ leilao.id }}">
-                        <input type="hidden" name="nome" value="Usuário">
-                        <div class="flex rounded-md shadow-sm">
-                            <span class="inline-flex items-center rounded-l-md border border-r-0 border-gray-300 bg-gray-50 px-3 text-gray-500 sm:text-sm">
-                                €
-                            </span>
-                            <input 
-                                type="number" 
-                                name="price" 
-                                id="price" 
-                                step="0.01" 
-                                min="{{ leilao.lance_atual + 0.01 }}" 
-                                class="block w-full min-w-0 flex-1 rounded-none rounded-r-md border-gray-300 py-1.5 text-gray-700 placeholder:text-gray-400 focus:ring-luxbrown focus:border-luxbrown sm:text-sm sm:leading-6" 
-                                placeholder="0.00" 
-                                required
-                                aria-label="Valor do lance"
-                            >
-                        </div>
-                        <button 
-                            type="submit" 
-                            class="mt-6 w-full flex items-center justify-center rounded-md border border-transparent bg-luxgold px-4 py-2 text-base font-medium text-white hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-luxgold focus:ring-offset-2 transition-colors duration-300"
-                        >
-                            Dar Lance
-                        </button>
-                    </form>
-                </div>
-
-                <!-- Histórico de Lances -->
-                <div class="mt-8 border-t border-gray-200 pt-6">
-                    <h3 class="text-sm font-medium text-gray-700">Histórico de Lances (<span id="total_lances">{{ leilao.total_lances }}</span>)</h3>
-                    <ul role="list" class="mt-4 space-y-4" id="historico_lances">
-                        {% for lance in leilao.historico_lances %}
-                        <li class="flex items-center">
-                            <img src="{{ lance.imagem }}" alt="{{ lance.nome }}" class="h-10 w-10 rounded-full object-cover">
-                            <div class="ml-4">
-                                <p class="text-sm font-medium text-gray-800">{{ lance.nome }}</p>
-                                <p class="text-sm text-gray-500">€{{ "{:,.2f}".format(lance.valor) }} - {{ lance.tempo }}</p>
-                            </div>
-                        </li>
-                        {% endfor %}
-                    </ul>
-                </div>
-                {% else %}
-                <!-- Leilão Encerrado -->
-                <div class="mt-8 text-center">
-                    <p class="text-xl font-semibold text-red-600">Este leilão está encerrado.</p>
-                </div>
+    <!-- Hero -->
+    <section class="min-h-screen flex items-center justify-center bg-gradient-to-b from-white to-luxcream pt-32 pb-20 px-4 text-center">
+        <div class="max-w-4xl mx-auto">
+            <h1 class="text-5xl lg:text-6xl font-serif font-bold text-luxgold mb-6">Arte Autêntica, Oportunidades Excepcionais</h1>
+            <p class="text-xl lg:text-2xl text-luxtext mb-10">
+                Bem-vindo ao <span class="text-luxgold font-semibold">BID FLOW</span>. Aqui encontrarás leilões de arte criteriosamente selecionada, 
+                licenciada por peritos, e disponível para lances em tempo real, num ambiente seguro e verdadeiramente luxuoso.
+            </p>
+            <div class="space-x-4">
+                <a href="#leiloes" class="inline-block bg-luxgold text-white px-8 py-3 rounded-full text-lg font-semibold hover:opacity-90 transition duration-300">Explorar Leilões</a>
+                {% if not current_user.is_authenticated %}
+                <a href="{{ url_for('register') }}" class="inline-block border border-luxgold text-luxtext px-8 py-3 rounded-full text-lg font-semibold hover:bg-luxgold hover:text-white transition duration-300">Criar a Minha Conta</a>
                 {% endif %}
             </div>
         </div>
-    </div>
+    </section>
 
-    <!-- Modal de Imagem -->
-    <div id="imageModal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 hidden" aria-modal="true" role="dialog">
-        <div class="relative max-w-3xl w-full mx-4">
-            <button 
-                onclick="closeModal()" 
-                class="absolute top-4 right-4 text-white text-3xl font-bold focus:outline-none" 
-                aria-label="Fechar modal"
-            >
-                &times;
-            </button>
-            <img id="modalImage" src="" alt="" class="w-full h-auto rounded-lg shadow-lg">
-            <p id="modalAlt" class="mt-2 text-center text-white text-lg"></p>
+    <!-- Desenvolvimento e Equipa -->
+    <section class="py-12 bg-luxcream">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- Título da Seção -->
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-luxbrown font-serif">O Nosso Desenvolvimento e Trabalho em Equipa</h2>
+                <p class="mt-4 text-lg text-gray-700">Descobre como a nossa equipa multidisciplinar colabora para criar uma plataforma de leilões sofisticada e eficiente.</p>
+            </div>
+    
+            <!-- Descrição da Equipe -->
+            <div class="flex flex-col lg:flex-row lg:space-x-12">
+                <!-- Trabalho em Equipe -->
+                <div class="space-y-6">
+                    <h3 class="text-2xl font-semibold text-luxgold">Trabalho em Equipa</h3>
+                    <p class="text-gray-800">
+                        A nossa equipa é composta por programadores, designers e especialistas em marketing que trabalham em conjunto para garantir a excelência da plataforma. Abaixo, apresentamos algumas das nossas principais tarefas e o respetivo estado:
+                    </p>
+    
+                    <!-- Tabela de Tarefas -->
+                    <div class="overflow-x-auto mt-6">
+                        <table class="min-w-full bg-white rounded-lg shadow-md">
+                            <thead>
+                                <tr>
+                                    <th class="px-6 py-3 border-b-2 border-gray-200 bg-luxgold text-left text-xs font-semibold text-white uppercase tracking-wider">ID</th>
+                                    <th class="px-6 py-3 border-b-2 border-gray-200 bg-luxgold text-left text-xs font-semibold text-white uppercase tracking-wider">Tema</th>
+                                    <th class="px-6 py-3 border-b-2 border-gray-200 bg-luxgold text-left text-xs font-semibold text-white uppercase tracking-wider">Descrição</th>
+                                    <th class="px-6 py-3 border-b-2 border-gray-200 bg-luxgold text-center text-xs font-semibold text-white uppercase tracking-wider">Prioridade</th>
+                                    <th class="px-6 py-3 border-b-2 border-gray-200 bg-luxgold text-center text-xs font-semibold text-white uppercase tracking-wider">Status</th>
+                                    <th class="px-6 py-3 border-b-2 border-gray-200 bg-luxgold text-center text-xs font-semibold text-white uppercase tracking-wider">Sprint</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-gray-800">
+                                <tr>
+                                    <td class="px-6 py-4 border-b border-gray-200">#1</td>
+                                    <td class="px-6 py-4 border-b border-gray-200">Tratamento de dados</td>
+                                    <td class="px-6 py-4 border-b border-gray-200">Escolha do tema (plataforma de leilão) <br> Divisão das tarefas</td>
+                                    <td class="px-6 py-4 border-b border-gray-200 text-center">1</td>
+                                    <td class="px-6 py-4 border-b border-gray-200 text-center">Feito</td>
+                                    <td class="px-6 py-4 border-b border-gray-200 text-center">1</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-6 py-4 border-b border-gray-200">#2</td>
+                                    <td class="px-6 py-4 border-b border-gray-200">Layout</td>
+                                    <td class="px-6 py-4 border-b border-gray-200">
+                                        Criação da galeria de produtos <br>
+                                        Botões para outras áreas da plataforma <br>
+                                        Página de lance de um só artigo <br>
+                                        Finalização da galeria de um só produto <br>
+                                        Implementação da função de Login <br>
+                                        Mostrador de notificações
+                                    </td>
+                                    <td class="px-6 py-4 border-b border-gray-200 text-center">1</td>
+                                    <td class="px-6 py-4 border-b border-gray-200 text-center">Feito</td>
+                                    <td class="px-6 py-4 border-b border-gray-200 text-center">2</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-6 py-4 border-b border-gray-200">#3</td>
+                                    <td class="px-6 py-4 border-b border-gray-200">Lógica</td>
+                                    <td class="px-6 py-4 border-b border-gray-200">
+                                        Função de criação de leilões <br>
+                                        Login/Registo <br>
+                                        Função de Lances <br>
+                                        Base de dados
+                                    </td>
+                                    <td class="px-6 py-4 border-b border-gray-200 text-center">2</td>
+                                    <td class="px-6 py-4 border-b border-gray-200 text-center">Feito</td>
+                                    <td class="px-6 py-4 border-b border-gray-200 text-center">2</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-6 py-4 border-b border-gray-200">#4</td>
+                                    <td class="px-6 py-4 border-b border-gray-200">Teste</td>
+                                    <td class="px-6 py-4 border-b border-gray-200">
+                                        Teste dos botões <br>
+                                        Teste do sistema de lances <br>
+                                        Teste da galeria <br>
+                                        Teste de Login/Registo
+                                    </td>
+                                    <td class="px-6 py-4 border-b border-gray-200 text-center">2</td>
+                                    <td class="px-6 py-4 border-b border-gray-200 text-center">Feito</td>
+                                    <td class="px-6 py-4 border-b border-gray-200 text-center">3</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+    
         </div>
-    </div>
-</main>
-{% endblock %}
+    </section>
+    
+    <!-- Recursos -->
+    <section id="recursos" class="py-20 bg-white">
+        <div class="container mx-auto px-6 lg:px-8">
+            <h2 class="text-3xl font-serif font-bold text-center text-luxtext mb-12">Porque Escolher o BID FLOW?</h2>
+            <div class="grid md:grid-cols-3 gap-12 text-center">
+                <div class="text-luxtext">
+                    <svg class="w-12 h-12 mx-auto mb-6 text-luxgold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <h3 class="text-xl font-semibold mb-3">Lances em Tempo Real</h3>
+                    <p class="text-gray-700">Acompanha cada oferta com atualizações instantâneas, garantindo total transparência e emoção no processo.</p>
+                </div>
+                <div class="text-luxtext">
+                    <svg class="w-12 h-12 mx-auto mb-6 text-luxgold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944 11.955 11.955 0 013.382 5.984 12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                    </svg>
+                    <h3 class="text-xl font-semibold mb-3">Segurança e Autenticidade</h3>
+                    <p class="text-gray-700">Obras verificadas por especialistas, garantindo autenticidade, tranquilidade e compras sem preocupações.</p>
+                </div>
+                <div class="text-luxtext">
+                    <svg class="w-12 h-12 mx-auto mb-6 text-luxgold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"></path>
+                    </svg>
+                    <h3 class="text-xl font-semibold mb-3">Valorização do Investimento</h3>
+                    <p class="text-gray-700">Investe em peças raras e exclusivas, expandindo a tua coleção e potencialmente o teu património cultural e financeiro.</p>
+                </div>
+            </div>
+        </div>
+    </section>
 
-{% block scripts %}
-<!-- Inclui a biblioteca cliente SocketIO -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.4/socket.io.min.js" integrity="sha512-yfRvGjoLkg81+Y2XvV4SJsUBj0kcAzmp3UrIQfz1N1VpxJXn1jbnI0XymHybUwnCbfGQFvX7SmZJ78fkeNMoZA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <!-- Leilões Ativos -->
+    <section id="leiloes" class="py-20 bg-luxcream">
+        <div class="container mx-auto px-6 lg:px-8">
+            <h2 class="text-3xl font-serif font-bold text-luxtext text-center mb-12">Leilões Ativos</h2>
+            <div class="grid md:grid-cols-3 gap-8">
+                {% for leilao in leiloes %}
+                <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
+                    {% if leilao.detalhes_imagens and leilao.detalhes_imagens|length > 0 %}
+                        <img src="{{ leilao.detalhes_imagens[0].url }}" alt="{{ leilao.detalhes_imagens[0].alt }}" class="w-full h-48 object-cover">
+                    {% else %}
+                        <img src="https://via.placeholder.com/400x300" alt="Imagem do Leilão" class="w-full h-48 object-cover">
+                    {% endif %}
+                    <div class="p-4 text-luxtext">
+                        <h3 class="text-xl font-semibold mb-2">{{ leilao.titulo }}</h3>
+                        <p class="mb-4 text-gray-700">Lance Atual: €{{ "%.2f"|format(leilao.lance_atual) }}</p>
+                        <a href="{{ url_for('leilao_inspecao', leilao_id=leilao.id) }}" class="block text-center bg-luxgold text-white py-2 rounded hover:opacity-90 transition duration-300">Participar Agora</a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <div class="text-center mt-12">
+                <a href="{{ url_for('dashboard') }}" class="inline-block bg-luxgold text-white px-8 py-3 rounded-full text-lg font-semibold hover:opacity-90 transition duration-300">Ver Todos os Leilões</a>
+            </div>
+        </div>
+    </section>
 
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const socket = io();
+    <!-- Depoimentos -->
+    <section id="depoimentos" class="py-20 bg-white">
+        <div class="container mx-auto px-6 lg:px-8">
+            <h2 class="text-3xl font-serif font-bold text-luxtext text-center mb-12">O que Dizem os Nossos Clientes</h2>
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="bg-luxcream p-6 rounded-lg text-luxtext">
+                    <p class="mb-4 italic">"A experiência na BID FLOW foi incrível. A qualidade das obras e a rapidez nas licitações superaram as minhas expectativas."</p>
+                    <p class="font-semibold text-luxbrown">- Maria Santos, Colecionadora</p>
+                </div>
+                <div class="bg-luxcream p-6 rounded-lg text-luxtext">
+                    <p class="mb-4 italic">"Encontrei uma plataforma segura, com um catálogo impressionante e um sistema de lances simples. Recomendo vivamente."</p>
+                    <p class="font-semibold text-luxbrown">- João Pereira, Artista Plástico</p>
+                </div>
+            </div>
+        </div>
+    </section>
 
-        const leilaoId = "{{ leilao.id }}";
-        const encerrado = {{ 'true' if leilao.encerrado else 'false' }};
+    <!-- CTA Final -->
+    <section class="py-20 bg-luxcream">
+        <div class="container mx-auto px-6 lg:px-8 text-center">
+            <h2 class="text-3xl font-serif font-bold mb-4 text-luxtext">Pronto para Dar o Próximo Passo?</h2>
+            <p class="text-xl mb-8 text-gray-700">
+                Junta-te ao <span class="text-luxgold font-semibold">BID FLOW</span> e mergulha num universo de arte exclusiva.  
+                Melhora a tua coleção, investe em obras valiosas e desfruta de uma comunidade apaixonada por arte.
+            </p>
+            {% if not current_user.is_authenticated %}
+                <a href="{{ url_for('register') }}" class="bg-luxgold text-white px-8 py-3 rounded-full text-lg font-semibold hover:opacity-90 transition duration-300">Criar a Minha Conta</a>
+            {% else %}
+                <a href="{{ url_for('dashboard') }}" class="bg-luxgold text-white px-8 py-3 rounded-full text-lg font-semibold hover:opacity-90 transition duration-300">Ir para o Dashboard</a>
+            {% endif %}
+        </div>
+    </section>
 
-        // Juntar-se à sala do leilão
-        socket.emit('join_leilao', { 'leilao_id': leilaoId });
+    <!-- Rodapé -->
+    <footer class="bg-white text-luxtext py-10 border-t border-luxbrown/30">
+        <div class="container mx-auto px-6 lg:px-8">
+            <div class="flex flex-wrap justify-between mb-8">
+                <div class="w-full md:w-1/4 mb-6 md:mb-0">
+                    <h3 class="text-xl font-serif font-bold mb-4 text-luxbrown">BID FLOW</h3>
+                    <p class="leading-relaxed text-gray-700">A tua plataforma de referência para leilões de arte autêntica, onde transparência, segurança e requinte se encontram.</p>
+                </div>
+                <div class="w-full md:w-1/4 mb-6 md:mb-0">
+                    <h3 class="text-xl font-serif font-bold mb-4 text-luxbrown">Links Rápidos</h3>
+                    <ul class="space-y-2 text-gray-700">
+                        <li><a href="#recursos" class="hover:text-luxgold transition duration-300">Recursos</a></li>
+                        <li><a href="#leiloes" class="hover:text-luxgold transition duration-300">Leilões Ativos</a></li>
+                        <li><a href="#" class="hover:text-luxgold transition duration-300">Termos de Serviço</a></li>
+                        <li><a href="#" class="hover:text-luxgold transition duration-300">Política de Privacidade</a></li>
+                    </ul>
+                </div>
+                <div class="w-full md:w-1/4 mb-6 md:mb-0">
+                    <h3 class="text-xl font-serif font-bold mb-4 text-luxbrown">Contacto</h3>
+                    <p class="text-gray-700">Email: info@bidflow.com</p>
+                    <p class="text-gray-700">Telefone: +351 123 456 789</p>
+                </div>
+                <div class="w-full md:w-1/4">
+                    <h3 class="text-xl font-serif font-bold mb-4 text-luxbrown">Segue-nos</h3>
+                    <div class="flex space-x-4 text-gray-600">
+                        <a href="#" class="hover:text-luxgold transition duration-300">
+                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M22.673 0H1.327C.595 0 0 .594 0 1.326V22.67c0 .732.595 1.327 1.327 1.327h11.495v-9.293H9.847v-3.47h2.975V9.43c0-2.956 1.792-4.67 4.464-4.67 1.292 0 2.653.231 2.653.231v2.917h-1.496c-1.472 0-1.93.916-1.93 1.855v2.23h3.285l-.526 3.47h-2.76V24h5.386c.732 0 1.327-.595 1.327-1.327V1.326C24 .595 23.405 0 22.673 0z"/></svg>
+                        </a>
+                        <a href="#" class="hover:text-luxgold transition duration-300">
+                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M24 4.509a9.832 9.832 0 01-2.828.775 4.93 4.93 0 002.164-2.722 9.863 9.863 0 01-3.127 1.195c-.896-.957-2.172-1.555-3.59-1.555-2.718 0-4.922 2.203-4.922 4.92 0 .386.045.763.127 1.124-4.09-.206-7.718-2.165-10.147-5.146-.425.725-.667 1.565-.667 2.462 0 1.699.867 3.197 2.188 4.078a4.93 4.93 0 01-2.228-.616v.062c0 2.372 1.684 4.348 3.918 4.795a4.996 4.996 0 01-2.224.084c.63 1.959 2.445 3.376 4.6 3.416-1.68 1.316-3.807 2.1-6.102 2.1-.396 0-.788-.022-1.177-.067 2.178 1.396 4.768 2.21 7.548 2.21 9.057 0 14.003-7.496 14.003-13.995 0-.214-.004-.428-.014-.64A9.985 9.985 0 0024 4.51z"/></svg>
+                        </a>
+                        <a href="#" class="hover:text-luxgold transition duration-300">
+                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C8.741 0 8.333.015 7.053.072c-1.284.059-2.162.264-2.92.558a5.737 5.737 0 00-2.07 1.35A5.704 5.704 0 00.63 4.14c-.295.758-.499 1.636-.558 2.92C.015 8.333 0 8.741 0 12s.015 3.667.072 4.947c.059 1.283.263 2.162.558 2.92.298.788.717 1.458 1.384 2.126.667.668 1.337 1.087 2.126 1.384.758.295 1.636.499 2.92.558 1.28.057 1.688.072 4.947.072s3.667-.015 4.947-.072c1.283-.059 2.162-.263 2.92-.558a5.686 5.686 0 001.384-.9 5.69 5.69 0 00.9-1.384c.295-.759.499-1.637.558-2.92.057-1.28.072-1.688.072-4.947s-.015-3.667-.072-4.947c-.059-1.283-.263-2.162-.558-2.92a5.69 5.69 0 00-.9-1.384A5.682 5.682 0 0019.86.63C19.101.335 18.223.131 16.94.072 15.66.015 15.259 0 12 0zm0 2.16c3.204 0 3.586.016 4.851.07 1.171.056 1.808.249 2.229.414.562.217.96.478 1.382.9.419.419.68.818.896 1.38.166.42.359 1.059.416 2.23.057 1.265.071 1.647.071 4.851s-.016 3.586-.07 4.851c-.057 1.171-.25 1.809-.416 2.23-.217.561-.478.96-.9 1.382-.419.419-.819.679-1.38.896-.421.165-1.059.358-2.23.414-1.265.057-1.647.071-4.851.071-3.204 0-3.586-.016-4.851-.07-1.171-.057-1.809-.25-2.23-.416a3.536 3.536 0 01-1.382-.9 3.53 3.53 0 01-.896-1.38c-.165-.422-.358-1.06-.414-2.23C2.176 15.586 2.16 15.204 2.16 12s.016-3.586.07-4.851c.057-1.171.25-1.809.416-2.23.217-.562.478-.96.9-1.382.419-.419.81-.68 1.38-.896.422-.165 1.06-.358 2.23-.414C8.414 2.176 8.796 2.16 12 2.16zm0 3.784a6.056 6.056 0 100 12.112 6.056 6.056 0 000-12.112zm0 9.928a3.872 3.872 0 110-7.744 3.872 3.872 0 010 7.744zm7.865-10.081a1.44 1.44 0 11-2.88 0 1.44 1.44 0 012.88 0z"/></svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-luxbrown/30 mt-8 pt-8 text-center text-gray-500">
+                <p>&copy; BID FLOW. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
 
-        // Confirmação de entrada na sala
-        socket.on('room_joined', (data) => {
-            console.log(data.msg);
-        });
-
-        if (!encerrado) {
-            // Lidando com novos lances
-            socket.on('new_bid', (data) => {
-                if (data.leilao_id === leilaoId) {
-                    console.log(`Novo lance de ${data.nome}: €${data.lance_atual}`);
-                    requestUpdate();
-                }
-            });
-
-            // Função para solicitar atualizações do leilão
-            function requestUpdate() {
-                socket.emit('request_update', { 'leilao_id': leilaoId });
-            }
-
-            // Solicitar atualizações a cada 5 segundos para reduzir a carga
-            setInterval(requestUpdate, 5000);
-
-            // Lidando com dados atualizados do leilão
-            socket.on('update_leilao', (data) => {
-                atualizarDadosLeilao(data);
-            });
-
-            socket.on('update_error', (data) => {
-                console.error(data.msg);
-            });
-
-            // Inicialização do Countdown e Barra de Progresso
-            let countdownInterval;
-            function initializeCountdown(endTime) {
-                if (countdownInterval) {
-                    clearInterval(countdownInterval);
-                }
-
-                const countdownElement = document.getElementById('countdown');
-                const progressBar = document.getElementById('progress-bar');
-                const totalDuration = endTime - (endTime - 6 * 60 * 60 * 1000); // Ajuste conforme necessário
-                const startTime = endTime - totalDuration;
-
-                function updateCountdown() {
-                    const now = new Date().getTime();
-                    const timeLeft = endTime - now;
-
-                    if (timeLeft <= 0) {
-                        clearInterval(countdownInterval);
-                        countdownElement.innerText = "Leilão encerrado";
-                        progressBar.style.width = "0%";
-                        socket.emit('leilao_encerrado', { 'leilao_id': leilaoId });
-                        return;
-                    }
-
-                    const hours = Math.floor(timeLeft / (1000 * 60 * 60));
-                    const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-                    const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
-
-                    countdownElement.innerText = `${padZero(hours)}:${padZero(minutes)}:${padZero(seconds)}`;
-
-                    const progress = ((timeLeft) / totalDuration) * 100;
-                    progressBar.style.width = `${progress}%`;
-                }
-
-                function padZero(num) {
-                    return num.toString().padStart(2, '0');
-                }
-
-                updateCountdown();
-                countdownInterval = setInterval(updateCountdown, 1000);
-            }
-
-            // Atualizar os dados do leilão na página
-            function atualizarDadosLeilao(data) {
-                // Atualizar Lance Atual
-                const lanceAtualElement = document.getElementById('lance_atual');
-                if (lanceAtualElement && data.lance_atual) {
-                    lanceAtualElement.textContent = `€${Number(data.lance_atual).toLocaleString('de-DE', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-                }
-
-                // Atualizar Avaliações
-                const avaliacoesElement = document.getElementById('media_avaliacoes');
-                if (avaliacoesElement && data.media_avaliacoes !== undefined && data.avaliacoes !== undefined) {
-                    avaliacoesElement.textContent = `${data.media_avaliacoes} (${data.avaliacoes} avaliações)`;
-
-                    // Atualizar estrelas de avaliação
-                    const estrelasContainer = document.getElementById('avaliacoes');
-                    if (estrelasContainer) {
-                        estrelasContainer.innerHTML = '';
-                        const mediaAval = Math.floor(data.media_avaliacoes);
-                        for (let i = 0; i < mediaAval; i++) {
-                            estrelasContainer.innerHTML += `
-                                <svg class="text-luxgold h-5 w-5 flex-shrink-0" fill="currentColor" aria-hidden="true" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z" clip-rule="evenodd"/>
-                                </svg>
-                            `;
-                        }
-                    }
-                }
-
-                // Atualizar Local de Entrega
-                const localEntregaElement = document.getElementById('local_de_entrega');
-                if (localEntregaElement && data.local_de_entrega) {
-                    localEntregaElement.textContent = `Local: ${data.local_de_entrega}`;
-                }
-
-                // Atualizar Ano de Fabricação
-                const anoFabricacaoElement = document.getElementById('ano_fabricacao');
-                if (anoFabricacaoElement && data.ano_fabricacao) {
-                    anoFabricacaoElement.textContent = `Ano: ${data.ano_fabricacao}`;
-                }
-
-                // Atualizar Condição
-                const condicaoElement = document.getElementById('condicao');
-                if (condicaoElement && data.condicao) {
-                    condicaoElement.textContent = `Condição: ${data.condicao}`;
-                }
-
-                // Atualizar Descrição
-                const descricaoElement = document.getElementById('descricao');
-                if (descricaoElement && data.descricao) {
-                    descricaoElement.textContent = data.descricao;
-                }
-
-                // Atualizar Tempo Restante e Barra de Progresso
-                const countdownElement = document.getElementById('countdown');
-                const progressBar = document.getElementById('progress-bar');
-                if (countdownElement && progressBar && data.tempo_fim) {
-                    const endTime = new Date(data.tempo_fim).getTime();
-                    initializeCountdown(endTime);
-                }
-
-                // Atualizar Total de Lances
-                const totalLancesElement = document.getElementById('total_lances');
-                if (totalLancesElement && data.total_lances !== undefined) {
-                    totalLancesElement.textContent = data.total_lances;
-                }
-
-                // Atualizar Histórico de Lances (opcional)
-                const historicoLancesElement = document.getElementById('historico_lances');
-                if (historicoLancesElement && data.historico_lances) {
-                    historicoLancesElement.innerHTML = '';
-                    data.historico_lances.forEach(lance => {
-                        historicoLancesElement.innerHTML += `
-                            <li class="flex items-center">
-                                <img src="${lance.imagem}" alt="${lance.nome}" class="h-10 w-10 rounded-full object-cover">
-                                <div class="ml-4">
-                                    <p class="text-sm font-medium text-gray-800">${lance.nome}</p>
-                                    <p class="text-sm text-gray-500">€${Number(lance.valor).toLocaleString('de-DE', {minimumFractionDigits: 2, maximumFractionDigits: 2})} - ${lance.tempo}</p>
-                                </div>
-                            </li>
-                        `;
-                    });
-                }
-            }
-
-            // Inicializar o countdown com o tempo final inicial
-            const initialEndTime = new Date("{{ leilao.tempo_fim_str }}").getTime();
-            initializeCountdown(initialEndTime);
-        } else {
-            console.log('Leilão encerrado. Atualizações em tempo real desativadas.');
-        }
-    });
-
-    // Função para atualizar os dados do leilão
-    function atualizarDadosLeilao(data) {
-        // Implementar conforme necessário
-    }
-
-    // Modal de Imagem
-    function openModal(src, alt) {
-        const modal = document.getElementById('imageModal');
-        const modalImage = document.getElementById('modalImage');
-        const modalAlt = document.getElementById('modalAlt');
-
-        modalImage.src = src;
-        modalImage.alt = alt;
-        modalAlt.textContent = alt;
-
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
-    }
-
-    function closeModal() {
-        const modal = document.getElementById('imageModal');
-        const modalImage = document.getElementById('modalImage');
-        const modalAlt = document.getElementById('modalAlt');
-
-        modal.classList.add('hidden');
-        modal.classList.remove('flex');
-
-        modalImage.src = '';
-        modalAlt.textContent = '';
-    }
-
-    // Fechar o modal ao clicar fora da imagem
-    window.onclick = function(event) {
-        const modal = document.getElementById('imageModal');
-        if (event.target == modal) {
-            closeModal();
-        }
-    }
-</script>
-{% endblock %}
+</body>
+</html>
