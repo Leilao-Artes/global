@@ -4,12 +4,14 @@ from uuid import uuid4
 import logging
 import urllib.parse
 import os
+
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-from flask_login import LoginManager, login_user, current_user, logout_user, login_required, UserMixin
+from flask_login import (LoginManager, login_user, current_user, logout_user, 
+                         login_required, UserMixin)
 from werkzeug.security import generate_password_hash, check_password_hash
+from flask_socketio import SocketIO, emit, join_room, leave_room
 
-# Inicialização do Flask
 app = Flask(__name__)
 app.secret_key = 'sua_chave_secreta_aqui'
 
@@ -21,6 +23,9 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 # Inicialização do SQLAlchemy e Migrate
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
+
+# SocketIO para comunicação em tempo real
+socketio = SocketIO(app, cors_allowed_origins='*')
 
 # Pasta de upload
 UPLOAD_FOLDER = os.path.join('static', 'uploads')
@@ -79,6 +84,7 @@ class Lance(db.Model):
     tempo = db.Column(db.String, nullable=False, default='Agora')
     imagem = db.Column(db.String, nullable=False)
     leilao_id = db.Column(db.String, db.ForeignKey('leiloes.id'), nullable=False)
+    user_id = db.Column(db.String, db.ForeignKey('users.id'), nullable=True)
 
 
 class Imagem(db.Model):
@@ -176,13 +182,53 @@ def logout():
 
 # Rotas principais
 @app.route('/')
+def landing_page():
+    # Busca até 4 leilões cujo tempo não tenha terminado ainda (ativos).
+    # Ajuste o filtro conforme a tua lógica de negócio.
+    agora = datetime.now()
+    leiloes_ativos = Leilao.query.filter(Leilao.tempo_fim > agora).order_by(Leilao.tempo_fim.asc()).limit(4).all()
+    
+    return render_template('landingpage.html', leiloes=leiloes_ativos, agora=agora)
+
+
+@app.route('/dashboard')
+@login_required
 def dashboard():
-    leiloes = Leilao.query.all()
+    # Parâmetros de pesquisa e filtro
+    q = request.args.get('q', '').strip()
+    ano_fabricacao = request.args.get('ano_fabricacao', '').strip()
+    condicao = request.args.get('condicao', '').strip()
+    ordenar = request.args.get('ordenar', '').strip()
+
+    query = Leilao.query
+
+    if q:
+        query = query.filter(Leilao.titulo.ilike(f"%{q}%"))
+    if ano_fabricacao:
+        query = query.filter(Leilao.ano_fabricacao == int(ano_fabricacao))
+    if condicao:
+        query = query.filter(Leilao.condicao == condicao)
+
+    # Ordenações de exemplo
+    if ordenar == 'lance':
+        query = query.order_by(Leilao.lance_atual.asc())
+    elif ordenar == 'tempo':
+        # Ordenar pelo tempo restante (o que terminar antes primeiro)
+        # tempo_restante = Leilao.tempo_fim - datetime.now()
+        # Infelizmente não é direto assim no SQLite, você pode ordenar só por tempo_fim mesmo
+        query = query.order_by(Leilao.tempo_fim.asc())
+
+    leiloes = query.all()
+
+    # Anos disponíveis para filtros (exemplo)
+    anos_disponiveis = [str(ano) for ano in range(1900, datetime.now().year+1)]
+
+    agora = datetime.now()
     for leilao in leiloes:
         leilao.tempo_fim_str = leilao.tempo_fim.strftime('%Y-%m-%d %H:%M:%S')
         leilao.media_avaliacoes_int = int(leilao.media_avaliacoes)
     leiloes_data = [serialize_leilao(l) for l in leiloes]
-    return render_template('dashboard.html', leiloes=leiloes, leiloes_data=leiloes_data)
+    return render_template('dashboard.html', leiloes=leiloes, leiloes_data=leiloes_data, anos_disponiveis=anos_disponiveis, agora=agora)
 
 @app.route('/leilao/<leilao_id>', methods=['GET', 'POST'])
 @login_required
@@ -204,12 +250,20 @@ def leilao_inspecao(leilao_id):
                     valor=lance,
                     tempo='Agora',
                     imagem=f'https://ui-avatars.com/api/?name={urllib.parse.quote(nome_usuario)}&background=ccc&color=000',
-                    leilao=leilao
+                    leilao=leilao,
+                    user_id=current_user.id
                 )
                 db.session.add(novo_lance)
                 leilao.total_lances += 1
                 db.session.commit()
                 flash(f'Parabéns, {nome_usuario}! Seu lance de €{lance:,.2f} foi registrado com sucesso.', 'success')
+                
+                # Emite atualização em tempo real para todos os conectados nesse leilão
+                socketio.emit('new_bid', {
+                    'leilao_id': leilao.id,
+                    'lance_atual': leilao.lance_atual,
+                    'nome': nome_usuario
+                }, room=leilao.id)
             else:
                 flash(f'O lance deve ser superior ao lance atual de €{leilao.lance_atual:,.2f}.', 'error')
         except ValueError:
@@ -293,9 +347,63 @@ def criar_leilao():
     return render_template('criar_leilao.html')
 
 
+@app.route('/meus-lances')
+@login_required
+def meus_lances():
+    # Lista todos os lances do usuário atual
+    meus_lances = Lance.query.filter_by(user_id=current_user.id).all()
+    # Para cada lance, vamos pegar o leilão e verificar se o lance é o maior ou não
+    lances_info = []
+    for lance in meus_lances:
+        leilao = Leilao.query.filter_by(id=lance.leilao_id).first()
+        if not leilao:
+            continue
+        status = "Ganhando" if lance.valor == leilao.lance_atual else "Ultrapassado"
+        if datetime.now() > leilao.tempo_fim:
+            status = "Leilão Encerrado"
+        lances_info.append({
+            'titulo': leilao.titulo,
+            'valor': lance.valor,
+            'tempo': lance.tempo,
+            'leilao_id': leilao.id,
+            'lance_atual': leilao.lance_atual,
+            'status': status
+        })
+    return render_template('meus_lances.html', lances_info=lances_info)
+
+
+# Eventos SocketIO
+@socketio.on('join_leilao')
+def on_join(data):
+    leilao_id = data['leilao_id']
+    join_room(leilao_id)
+    emit('room_joined', {'msg': f'Entrou no leilão {leilao_id}'}, room=leilao_id)
+
+@socketio.on('leave_leilao')
+def on_leave(data):
+    leilao_id = data['leilao_id']
+    leave_room(leilao_id)
+    emit('room_left', {'msg': f'Saiu do leilão {leilao_id}'}, room=leilao_id)
+
+@socketio.on('request_update')
+def handle_request_update(data):
+    leilao_id = data.get('leilao_id')
+    if not leilao_id:
+        emit('update_error', {'msg': 'ID do leilão não fornecido.'})
+        return
+
+    leilao = Leilao.query.filter_by(id=leilao_id).first()
+    if not leilao:
+        emit('update_error', {'msg': 'Leilão não encontrado.'})
+        return
+
+    leilao_data = serialize_leilao(leilao)
+    # Optionally include additional data like 'historico_lances' and 'detalhes_imagens' if needed
+    emit('update_leilao', leilao_data)
+
 # Criação das tabelas
 with app.app_context():
     db.create_all()
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    socketio.run(app, debug=True)

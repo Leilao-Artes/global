@@ -3,14 +3,80 @@
 {% block title %}Dashboard de Artes - BID FLOW{% endblock %}
 
 {% block content %}
-<div class="px-4 sm:px-6 lg:px-8">
-    <h1 class="text-3xl font-bold text-gray-900 mb-8">Artes em Leilão</h1>
-    <div class="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+<div class="space-y-4">
+    <!-- Barra de Pesquisa e Filtros -->
+    <form method="GET" class="flex flex-col sm:flex-row items-start sm:items-end space-y-4 sm:space-y-0 sm:space-x-4">
+        <!-- Campo de pesquisa -->
+        <div class="flex-grow">
+            <label for="q" class="block text-sm font-medium text-gray-700 mb-1">Pesquisar por título:</label>
+            <input 
+                type="text" 
+                name="q" 
+                id="q"
+                value="{{ request.args.get('q', '') }}" 
+                placeholder="Ex: Mona Lisa..." 
+                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-luxgold focus:border-luxgold"
+            />
+        </div>
+
+        <!-- Filtro por ano de fabricação -->
+        <div>
+            <label for="ano_fabricacao" class="block text-sm font-medium text-gray-700 mb-1">Ano de Fabricação:</label>
+            <select name="ano_fabricacao" id="ano_fabricacao"
+                class="border border-gray-300 rounded-md px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-luxgold focus:border-luxgold">
+                <option value="">Todos</option>
+                {% for ano in anos_disponiveis %}
+                <option value="{{ ano }}" {% if request.args.get('ano_fabricacao') == ano|string %}selected{% endif %}>{{ ano }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Filtro por Condição -->
+        <div>
+            <label for="condicao" class="block text-sm font-medium text-gray-700 mb-1">Condição:</label>
+            <select name="condicao" id="condicao"
+                class="border border-gray-300 rounded-md px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-luxgold focus:border-luxgold">
+                <option value="">Todas</option>
+                <option value="Novo" {% if request.args.get('condicao') == 'Novo' %}selected{% endif %}>Novo</option>
+                <option value="Usado" {% if request.args.get('condicao') == 'Usado' %}selected{% endif %}>Usado</option>
+                <option value="Semi-novo" {% if request.args.get('condicao') == 'Semi-novo' %}selected{% endif %}>Semi-novo</option>
+            </select>
+        </div>
+
+        <!-- Ordenação -->
+        <div>
+            <label for="ordenar" class="block text-sm font-medium text-gray-700 mb-1">Ordenar por:</label>
+            <select name="ordenar" id="ordenar"
+                class="border border-gray-300 rounded-md px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-luxgold focus:border-luxgold">
+                <option value="">Padrão</option>
+                <option value="lance" {% if request.args.get('ordenar') == 'lance' %}selected{% endif %}>Lance Atual (Crescente)</option>
+                <option value="tempo" {% if request.args.get('ordenar') == 'tempo' %}selected{% endif %}>Tempo Restante (Menor primeiro)</option>
+            </select>
+        </div>
+
+        <div>
+            <button type="submit" class="bg-luxgold text-white px-4 py-2 rounded-md hover:bg-yellow-600 transition text-sm font-medium mt-6 sm:mt-0 w-full">
+                Aplicar
+            </button>
+        </div>
+    </form>
+
+    <!-- Grid de Leilões -->
+    <div class="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
         {% for leilao in leiloes %}
-        <div class="bg-white overflow-hidden shadow-md rounded-lg transition transform hover:scale-105 hover:shadow-xl duration-300 flex flex-col">
+        {% set encerrado = leilao.tempo_fim < agora %}
+        <div class="bg-white overflow-hidden shadow-md rounded-lg flex flex-col hover:shadow-xl transition">
+            {% if not encerrado %}
             <a href="{{ url_for('leilao_inspecao', leilao_id=leilao.id) }}" class="block">
-                <div class="h-48 w-full overflow-hidden">
+            {% else %}
+            <div class="block cursor-default opacity-70">
+            {% endif %}
+                <div class="h-64 w-full overflow-hidden">
+                    {% if leilao.detalhes_imagens and leilao.detalhes_imagens[0] %}
                     <img src="{{ leilao.detalhes_imagens[0].url }}" alt="{{ leilao.detalhes_imagens[0].alt }}" class="object-cover w-full h-full">
+                    {% else %}
+                    <div class="flex items-center justify-center w-full h-full bg-gray-200 text-gray-500">Sem imagem</div>
+                    {% endif %}
                 </div>
                 <div class="p-4 flex-grow">
                     <h2 class="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">{{ leilao.titulo }}</h2>
@@ -25,11 +91,21 @@
                         </div>
                     </div>
                 </div>
+            {% if not encerrado %}
             </a>
+            {% else %}
+            </div>
+            {% endif %}
             <div class="px-4 py-3 bg-gray-50">
                 <div class="flex items-center justify-between text-sm">
                     <span class="text-gray-600">Tempo Restante</span>
-                    <span class="font-medium text-luxgold" id="countdown-{{ leilao.id }}">Carregando...</span>
+                    <span class="font-medium text-luxgold" id="countdown-{{ leilao.id }}">
+                        {% if encerrado %}
+                            Leilão encerrado
+                        {% else %}
+                            Carregando...
+                        {% endif %}
+                    </span>
                 </div>
                 <div class="mt-2 w-full bg-gray-200 rounded-full h-2.5">
                     <div class="bg-luxgold h-2.5 rounded-full transition-width duration-500" id="progress-bar-{{ leilao.id }}" style="width: 100%"></div>
@@ -38,6 +114,12 @@
         </div>
         {% endfor %}
     </div>
+
+    {% if leiloes|length == 0 %}
+    <div class="text-center text-gray-600 mt-8">
+        Nenhum leilão encontrado com esses filtros.
+    </div>
+    {% endif %}
 </div>
 {% endblock %}
 
@@ -46,8 +128,12 @@
     function initializeCountdown(leilao) {
         const countdownElement = document.getElementById(`countdown-${leilao.id}`);
         const progressBar = document.getElementById(`progress-bar-${leilao.id}`);
+
+        // Ignora se não houver elementos
+        if (!countdownElement || !progressBar) return;
+        
         const endTime = new Date(leilao.tempo_fim).getTime();
-        const totalDuration = 6 * 60 * 60 * 1000; // 6 horas em milissegundos
+        const totalDuration = 6 * 60 * 60 * 1000; // Exemplo de duração total: 6 horas
         const startTime = endTime - totalDuration;
 
         function updateCountdown() {
@@ -68,7 +154,6 @@
             const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
 
             countdownElement.innerText = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-
             const progress = (timeLeft / totalDuration) * 100;
             progressBar.style.width = `${progress}%`;
         }
@@ -80,7 +165,11 @@
     document.addEventListener('DOMContentLoaded', function() {
         const leiloesData = {{ leiloes_data | tojson | safe }};
         leiloesData.forEach(leilao => {
-            initializeCountdown(leilao);
+            const agora = new Date().getTime();
+            const endTime = new Date(leilao.tempo_fim).getTime();
+            if (endTime > agora) { // Só inicializa se não estiver encerrado
+                initializeCountdown(leilao);
+            }
         });
     });
 </script>

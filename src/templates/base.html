@@ -46,114 +46,89 @@
         }
     </style>
 </head>
-<body class="h-full font-sans antialiased">
-    <div class="min-h-full flex flex-col">
-        <header class="bg-white shadow-sm">
-            <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex justify-between h-16">
-                    <div class="flex">
-                        <div class="flex-shrink-0 flex items-center">
-                            <a href="{{ url_for('dashboard') }}" class="flex items-center">
-                                <svg class="h-8 w-8 text-luxgold" fill="currentColor" viewBox="0 0 20 20">
-                                    <circle cx="10" cy="10" r="8" />
-                                </svg>
-                                <span class="ml-2 text-luxgold font-bold text-lg">BID FLOW</span>
-                            </a>
-                        </div>
-                        <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
-                            <a href="{{ url_for('dashboard') }}" class="border-luxgold text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
-                                Leilões
-                            </a>
-                            <a href="{{ url_for('criar_leilao') }}" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
-                                Criar Leilão
-                            </a>
-                            <a href="#" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
-                                Meus Lances
-                            </a>
-                        </div>
-                    </div>
-                    <div class="hidden sm:ml-6 sm:flex sm:items-center">
-                        {% if current_user.is_authenticated %}
-                            <span class="mr-4 text-gray-800 text-sm font-medium">Olá, {{ current_user.name }}!</span>
-                            <a href="{{ url_for('logout') }}" class="bg-luxbrown text-luxwhite px-3 py-1 rounded hover:bg-luxgold focus:outline-none focus:ring-2 focus:ring-luxgold text-sm font-medium">
-                                Sair
-                            </a>
-                        {% else %}
-                            <a href="{{ url_for('login') }}" class="text-gray-600 hover:text-luxgold mx-2">Entrar</a>
-                            <a href="{{ url_for('register') }}" class="text-gray-600 hover:text-luxgold mx-2">Registar</a>
-                        {% endif %}
-                    </div>
-                    <div class="-mr-2 flex items-center sm:hidden">
-                        <!-- Mobile menu button -->
-                        <button type="button" class="bg-white inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-luxgold" aria-controls="mobile-menu" aria-expanded="false">
-                            <span class="sr-only">Abrir menu principal</span>
-                            <svg class="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                            </svg>
-                            <svg class="hidden h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-            </nav>
-
-            <!-- Mobile menu, show/hide based on menu state. -->
-            <div class="sm:hidden" id="mobile-menu">
-                <div class="pt-2 pb-3 space-y-1">
-                    <a href="{{ url_for('dashboard') }}" class="bg-luxbeige border-luxgold text-luxbrown block pl-3 pr-4 py-2 border-l-4 text-base font-medium">Leilões</a>
-                    <a href="#" class="border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800 block pl-3 pr-4 py-2 border-l-4 text-base font-medium">Artes</a>
-                    <a href="#" class="border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800 block pl-3 pr-4 py-2 border-l-4 text-base font-medium">Meus Lances</a>
-                </div>
-                <div class="pt-4 pb-3 border-t border-gray-200">
-                    <div class="flex items-center px-4">
-                        {% if current_user.is_authenticated %}
-                            <img class="h-10 w-10 rounded-full" src="https://ui-avatars.com/api/?name={{ current_user.name }}&background=C4A484&color=fff" alt="Foto de Perfil">
-                            <div class="ml-3">
-                                <div class="text-base font-medium text-gray-800">{{ current_user.name }}</div>
-                                <div class="text-sm font-medium text-gray-500">{{ current_user.email }}</div>
-                            </div>
-                            <a href="{{ url_for('logout') }}" class="ml-auto bg-white flex-shrink-0 p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-luxgold">
-                                <span class="sr-only">Sair</span>
-                                <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7" />
-                                </svg>
-                            </a>
-                        {% else %}
-                            <img class="h-10 w-10 rounded-full" src="https://ui-avatars.com/api/?name=Visitante&background=C4A484&color=fff" alt="Foto de Perfil">
-                            <div class="ml-3">
-                                <div class="text-base font-medium text-gray-800">Visitante</div>
-                                <div class="text-sm font-medium text-gray-500">Sem login</div>
-                            </div>
-                            <div class="mt-4 flex space-x-2">
-                                <a href="{{ url_for('login') }}" class="text-luxgold font-medium hover:underline">Entrar</a>
-                                <a href="{{ url_for('register') }}" class="text-luxgold font-medium hover:underline">Registar</a>
-                            </div>
-                        {% endif %}
-                    </div>
+<body class="h-full font-sans antialiased flex flex-col">
+    <header class="bg-white shadow-sm">
+        <nav class="px-4 py-2 flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+                <a href="{{ url_for('dashboard') }}" class="flex items-center">
+                    <svg class="h-8 w-8 text-luxgold" fill="currentColor" viewBox="0 0 20 20">
+                        <circle cx="10" cy="10" r="8" />
+                    </svg>
+                    <span class="ml-2 text-luxgold font-bold text-lg">BID FLOW</span>
+                </a>
+                <div class="hidden sm:flex space-x-6">
+                    <a href="{{ url_for('dashboard') }}" class="text-gray-900 hover:text-luxgold text-sm font-medium">
+                        Leilões
+                    </a>
+                    <a href="{{ url_for('criar_leilao') }}" class="text-gray-600 hover:text-luxgold text-sm font-medium">
+                        Criar Leilão
+                    </a>
+                    {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('meus_lances') }}" class="text-gray-600 hover:text-luxgold text-sm font-medium">
+                        Os meus lances
+                    </a>
+                    {% endif %}
                 </div>
             </div>
-        </header>
-
-        <main class="flex-grow">
-            <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-                {% block content %}{% endblock %}
+            <div class="hidden sm:flex items-center space-x-4">
+                {% if current_user.is_authenticated %}
+                    <span class="text-gray-800 text-sm">Olá, {{ current_user.name }}!</span>
+                    <a href="{{ url_for('logout') }}" class="bg-luxbrown text-luxwhite px-3 py-1 rounded hover:bg-luxgold text-sm font-medium">
+                        Sair
+                    </a>
+                {% else %}
+                    <a href="{{ url_for('login') }}" class="text-gray-600 hover:text-luxgold text-sm font-medium">Entrar</a>
+                    <a href="{{ url_for('register') }}" class="text-gray-600 hover:text-luxgold text-sm font-medium">Registar</a>
+                {% endif %}
             </div>
-        </main>
-
-        <footer class="bg-white">
-            <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
-                <p class="text-center text-sm text-gray-500">
-                    &copy; 2024 BID FLOW. Todos os direitos reservados.
-                </p>
+            <div class="sm:hidden flex items-center">
+                <button type="button" class="p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none"
+                        aria-controls="mobile-menu" aria-expanded="false">
+                    <span class="sr-only">Abrir menu principal</span>
+                    <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
             </div>
-        </footer>
-    </div>
+        </nav>
+
+        <!-- Menu Mobile -->
+        <div class="sm:hidden hidden px-4 pb-4" id="mobile-menu">
+            <div class="space-y-2">
+                <a href="{{ url_for('dashboard') }}" class="block text-gray-900 hover:text-luxgold text-sm font-medium">Leilões</a>
+                <a href="{{ url_for('criar_leilao') }}" class="block text-gray-600 hover:text-luxgold text-sm font-medium">Criar Leilão</a>
+                {% if current_user.is_authenticated %}
+                <a href="{{ url_for('meus_lances') }}" class="block text-gray-600 hover:text-luxgold text-sm font-medium">Os meus lances</a>
+                <hr class="border-gray-300">
+                <div class="flex items-center space-x-2">
+                    <img class="h-8 w-8 rounded-full" src="https://ui-avatars.com/api/?name={{ current_user.name }}&background=C4A484&color=fff" alt="Perfil">
+                    <span class="text-gray-700 text-sm">{{ current_user.name }}</span>
+                    <a href="{{ url_for('logout') }}" class="text-gray-600 hover:text-luxgold text-sm font-medium ml-auto">Sair</a>
+                </div>
+                {% else %}
+                <div class="flex items-center space-x-2 pt-2">
+                    <a href="{{ url_for('login') }}" class="text-gray-600 hover:text-luxgold text-sm font-medium">Entrar</a>
+                    <a href="{{ url_for('register') }}" class="text-gray-600 hover:text-luxgold text-sm font-medium">Registar</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow py-6 px-4 sm:px-6 lg:px-8">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="bg-white px-4 py-4">
+        <p class="text-center text-sm text-gray-500">
+            &copy; 2024 BID FLOW. Todos os direitos reservados.
+        </p>
+    </footer>
 
     {% block scripts %}{% endblock %}
 
     <script>
-        // Flash messages as toasts
+        // Exibir mensagens flash como toasts
         {% with messages = get_flashed_messages(with_categories=True) %}
         {% if messages %}
             {% for category, message in messages %}
@@ -170,7 +145,7 @@
         {% endif %}
         {% endwith %}
 
-        // Mobile menu toggle
+        // Toggle do menu mobile
         const mobileMenuButton = document.querySelector('[aria-controls="mobile-menu"]');
         const mobileMenu = document.getElementById('mobile-menu');
 

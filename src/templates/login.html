@@ -22,6 +22,32 @@
             Entrar
         </button>
     </form>
+
+    <!-- Botões de Login Social -->
+    <div class="mt-6">
+        <p class="text-center text-sm text-gray-600 mb-4">Ou entre com</p>
+        <div class="flex justify-center space-x-4">
+            <!-- Login com Google -->
+            <a href="#"
+               class="flex items-center px-4 py-2 bg-red-500 text-white rounded shadow hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500">
+                <img src="https://cdn.jsdelivr.net/npm/simple-icons@v5/icons/google.svg" alt="Google" class="w-5 h-5 mr-2">
+                Google
+            </a>
+            <!-- Login com Facebook -->
+            <a href="#"
+               class="flex items-center px-4 py-2 bg-blue-600 text-white rounded shadow hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-600">
+                <img src="https://cdn.jsdelivr.net/npm/simple-icons@v5/icons/facebook.svg" alt="Facebook" class="w-5 h-5 mr-2">
+                Facebook
+            </a>
+            <!-- Login com Microsoft -->
+            <a href="#"
+               class="flex items-center px-4 py-2 bg-gray-800 text-white rounded shadow hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-800">
+                <img src="https://cdn.jsdelivr.net/npm/simple-icons@v5/icons/microsoft.svg" alt="Microsoft" class="w-5 h-5 mr-2">
+                Microsoft
+            </a>
+        </div>
+    </div>
+    <div class="mt-6"></div>
     <p class="mt-4 text-center text-sm text-gray-600">
         Não tem uma conta? <a href="{{ url_for('register') }}" class="text-luxgold font-medium hover:underline">Registar-se</a>
     </p>

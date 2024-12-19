@@ -28,27 +28,29 @@
             <div class="mt-10 lg:col-span-5 lg:mt-0">
                 <h1 class="text-3xl font-bold tracking-tight text-luxgold">{{ leilao.titulo }}</h1>
                 <div class="mt-4">
-                    <p class="text-lg text-gray-800">Lance Atual: <span class="font-semibold text-luxbrown">€{{ "{:,.2f}".format(leilao.lance_atual) }}</span></p>
-                    <p class="mt-1 text-sm text-gray-500">Local de Entrega: {{ leilao.local_de_entrega }} | Ano: {{ leilao.ano_fabricacao }} | Condição: {{ leilao.condicao }}</p>
+                    <p class="text-lg text-gray-800">Lance Atual: <span class="font-semibold text-luxbrown" id="lance_atual">€{{ "{:,.2f}".format(leilao.lance_atual) }}</span></p>
+                    <p class="mt-1 text-sm text-gray-500">Local de Entrega: <span id="local_de_entrega">{{ leilao.local_de_entrega }}</span> | Ano: <span id="ano_fabricacao">{{ leilao.ano_fabricacao }}</span> | Condição: <span id="condicao">{{ leilao.condicao }}</span></p>
                 </div>
                 <div class="mt-4">
                     <div class="flex items-center">
-                        <div class="flex items-center">
+                        <div class="flex items-center" id="avaliacoes">
                             {% for i in range(leilao.media_avaliacoes_int) %}
                             <svg class="text-luxgold h-5 w-5 flex-shrink-0" fill="currentColor" aria-hidden="true" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z" clip-rule="evenodd"/>
                             </svg>
                             {% endfor %}
                         </div>
-                        <p class="ml-3 text-sm text-gray-500">{{ leilao.media_avaliacoes }} ({{ leilao.avaliacoes }} avaliações)</p>
+                        <p class="ml-3 text-sm text-gray-500" id="media_avaliacoes">{{ leilao.media_avaliacoes }} ({{ leilao.avaliacoes }} avaliações)</p>
                     </div>
                 </div>
                 <div class="mt-6">
                     <h3 class="sr-only">Descrição</h3>
                     <div class="space-y-6 text-base text-gray-600">
-                        <p>{{ leilao.descricao }}</p>
+                        <p id="descricao">{{ leilao.descricao }}</p>
                     </div>
                 </div>
+
+                {% if not leilao.encerrado %}
                 <div class="mt-8">
                     <div class="flex items-center justify-between">
                         <h3 class="text-sm font-medium text-gray-700">Tempo Restante</h3>
@@ -71,9 +73,9 @@
                     </form>
                 </div>
                 <div class="mt-10 border-t border-gray-200 pt-10">
-                    <h3 class="text-sm font-medium text-gray-700">Histórico de Lances ({{ leilao.total_lances }})</h3>
+                    <h3 class="text-sm font-medium text-gray-700">Histórico de Lances (<span id="total_lances">{{ leilao.total_lances }}</span>)</h3>
                     <div class="mt-4 flow-root">
-                        <ul role="list" class="-my-4 divide-y divide-gray-200">
+                        <ul role="list" class="-my-4 divide-y divide-gray-200" id="historico_lances">
                             {% for lance in leilao.historico_lances %}
                             <li class="flex items-center py-4">
                                 <img src="{{ lance.imagem }}" alt="{{ lance.nome }}" class="h-10 w-10 rounded-full">
@@ -86,6 +88,11 @@
                         </ul>
                     </div>
                 </div>
+                {% else %}
+                <div class="mt-8">
+                    <p class="text-xl font-semibold text-red-600">Este leilão está encerrado.</p>
+                </div>
+                {% endif %}
             </div>
         </div>
     </div>
@@ -102,7 +109,169 @@
 {% endblock %}
 
 {% block scripts %}
+<!-- Include SocketIO client library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.4/socket.io.min.js" integrity="sha512-yfRvGjoLkg81+Y2XvV4SJsUBj0kcAzmp3UrIQfz1N1VpxJXn1jbnI0XymHybUwnCbfGQFvX7SmZJ78fkeNMoZA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
 <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const socket = io();
+
+        const leilaoId = "{{ leilao.id }}";
+        const encerrado = {{ 'true' if leilao.encerrado else 'false' }};
+
+        // Join the leilao room
+        socket.emit('join_leilao', { 'leilao_id': leilaoId });
+
+        // Handle room joined confirmation
+        socket.on('room_joined', (data) => {
+            console.log(data.msg);
+        });
+
+        if (!encerrado) {
+            // Handle new bids (optional, already handled by update_leilao)
+            socket.on('new_bid', (data) => {
+                if (data.leilao_id === leilaoId) {
+                    console.log(`Novo lance de ${data.nome}: €${data.lance_atual}`);
+                    // Optionally, you can trigger an immediate update
+                    requestUpdate();
+                }
+            });
+
+            // Function to request auction updates
+            function requestUpdate() {
+                socket.emit('request_update', { 'leilao_id': leilaoId });
+            }
+
+            // Request updates every 0.5 seconds
+            setInterval(requestUpdate, 500);
+
+            // Handle updated auction data
+            socket.on('update_leilao', (data) => {
+                // Atualizar Lance Atual
+                const lanceAtualElement = document.getElementById('lance_atual');
+                if (lanceAtualElement && data.lance_atual) {
+                    lanceAtualElement.textContent = `€${Number(data.lance_atual).toLocaleString('de-DE', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+                }
+
+                // Atualizar Avaliações
+                const avaliacoesElement = document.getElementById('media_avaliacoes');
+                if (avaliacoesElement && data.media_avaliacoes !== undefined && data.avaliacoes !== undefined) {
+                    avaliacoesElement.textContent = `${data.media_avaliacoes} (${data.avaliacoes} avaliações)`;
+
+                    // Atualizar estrelas de avaliação
+                    const estrelasContainer = document.getElementById('avaliacoes');
+                    if (estrelasContainer) {
+                        estrelasContainer.innerHTML = '';
+                        const mediaAval = Math.floor(data.media_avaliacoes);
+                        for (let i = 0; i < mediaAval; i++) {
+                            estrelasContainer.innerHTML += `
+                                <svg class="text-luxgold h-5 w-5 flex-shrink-0" fill="currentColor" aria-hidden="true" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z" clip-rule="evenodd"/>
+                                </svg>
+                            `;
+                        }
+                    }
+                }
+
+                // Atualizar Local de Entrega
+                const localEntregaElement = document.getElementById('local_de_entrega');
+                if (localEntregaElement && data.local_de_entrega) {
+                    localEntregaElement.textContent = data.local_de_entrega;
+                }
+
+                // Atualizar Ano de Fabricação
+                const anoFabricacaoElement = document.getElementById('ano_fabricacao');
+                if (anoFabricacaoElement && data.ano_fabricacao) {
+                    anoFabricacaoElement.textContent = data.ano_fabricacao;
+                }
+
+                // Atualizar Condição
+                const condicaoElement = document.getElementById('condicao');
+                if (condicaoElement && data.condicao) {
+                    condicaoElement.textContent = data.condicao;
+                }
+
+                // Atualizar Descrição
+                const descricaoElement = document.getElementById('descricao');
+                if (descricaoElement && data.descricao) {
+                    descricaoElement.textContent = data.descricao;
+                }
+
+                // Atualizar Tempo Restante e Barra de Progresso
+                const countdownElement = document.getElementById('countdown');
+                const progressBar = document.getElementById('progress-bar');
+                if (countdownElement && progressBar && data.tempo_fim) {
+                    const endTime = new Date(data.tempo_fim).getTime();
+
+                    // Reinitialize countdown
+                    initializeCountdown(endTime);
+                }
+
+                // Atualizar Total de Lances
+                const totalLancesElement = document.getElementById('total_lances');
+                if (totalLancesElement && data.total_lances !== undefined) {
+                    totalLancesElement.textContent = data.total_lances;
+                }
+
+                // Atualizar Histórico de Lances
+                const historicoLancesElement = document.getElementById('historico_lances');
+                if (historicoLancesElement && data.id) {
+                    // Aqui você pode atualizar o histórico de lances conforme necessário
+                }
+            });
+
+            socket.on('update_error', (data) => {
+                console.error(data.msg);
+            });
+
+            // Inicialização do Countdown e Barra de Progresso
+            let countdownInterval;
+            function initializeCountdown(endTime) {
+                if (countdownInterval) {
+                    clearInterval(countdownInterval);
+                }
+
+                const countdownElement = document.getElementById('countdown');
+                const progressBar = document.getElementById('progress-bar');
+                const totalDuration = endTime - (endTime - 6 * 60 * 60 * 1000); // Ajuste conforme necessário
+                const startTime = endTime - totalDuration;
+
+                function updateCountdown() {
+                    const now = new Date().getTime();
+                    const timeLeft = endTime - now;
+
+                    if (timeLeft <= 0) {
+                        clearInterval(countdownInterval);
+                        countdownElement.innerText = "Leilão encerrado";
+                        progressBar.style.width = "0%";
+                        // Opcional: Emitir um evento para atualizar o status no servidor
+                        socket.emit('leilao_encerrado', { 'leilao_id': leilaoId });
+                        return;
+                    }
+
+                    const hours = Math.floor(timeLeft / (1000 * 60 * 60));
+                    const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+                    const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+
+                    countdownElement.innerText = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+                    const progress = ((timeLeft) / totalDuration) * 100;
+                    progressBar.style.width = `${progress}%`;
+                }
+
+                updateCountdown();
+                countdownInterval = setInterval(updateCountdown, 1000);
+            }
+
+            // Inicializar o countdown com o tempo final inicial
+            const initialEndTime = new Date("{{ leilao.tempo_fim_str }}").getTime();
+            initializeCountdown(initialEndTime);
+        } else {
+            // Opcional: Desabilitar funcionalidades de atualização em tempo real
+            console.log('Leilão encerrado. Atualizações em tempo real desativadas.');
+        }
+    });
+
     // Modal de Imagem
     function openModal(src, alt) {
         document.getElementById('modalImage').src = src;
@@ -122,37 +291,5 @@
             closeModal();
         }
     }
-
-    // Contador regressivo e barra de progresso
-    const countdownElement = document.getElementById('countdown');
-    const progressBar = document.getElementById('progress-bar');
-    const endTime = new Date("{{ leilao.tempo_fim_str }}").getTime();
-
-    const totalDuration = 6 * 60 * 60 * 1000; // Ajuste conforme desejado.
-    const startTime = endTime - totalDuration;
-
-    function updateCountdown() {
-        const now = new Date().getTime();
-        const timeLeft = endTime - now;
-
-        if (timeLeft <= 0) {
-            clearInterval(countdownInterval);
-            countdownElement.innerText = "Leilão encerrado";
-            progressBar.style.width = "0%";
-            return;
-        }
-
-        const hours = Math.floor(timeLeft / (1000 * 60 * 60));
-        const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
-
-        countdownElement.innerText = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-
-        const progress = ((timeLeft) / totalDuration) * 100;
-        progressBar.style.width = `${progress}%`;
-    }
-
-    updateCountdown();
-    const countdownInterval = setInterval(updateCountdown, 1000);
 </script>
 {% endblock %}

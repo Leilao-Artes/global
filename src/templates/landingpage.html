@@ -1,0 +1,401 @@
+{% extends "base.html" %}
+
+{% block title %}{{ leilao.titulo }} - BID FLOW{% endblock %}
+
+{% block content %}
+<main class="py-12 bg-luxcream">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col lg:flex-row lg:space-x-12">
+            
+            <!-- Seção de Imagens -->
+            <div class="lg:w-2/3 space-y-6">
+                <!-- Imagem Principal -->
+                <div class="relative">
+                    <img 
+                        src="{{ leilao.detalhes_imagens[0].url }}" 
+                        alt="{{ leilao.detalhes_imagens[0].alt }}" 
+                        class="w-full h-auto rounded-lg shadow-lg object-cover cursor-pointer transition-transform duration-300 hover:scale-105"
+                        onclick="openModal(this.src, '{{ leilao.detalhes_imagens[0].alt }}')"
+                    >
+                    <button 
+                        class="absolute top-4 right-4 bg-white bg-opacity-75 rounded-full p-2 hover:bg-opacity-100 transition"
+                        onclick="openModal(this.previousElementSibling.src, '{{ leilao.detalhes_imagens[0].alt }}')"
+                        aria-label="Ampliar imagem principal"
+                    >
+                        <svg class="h-6 w-6 text-luxbrown" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Grade de Imagens Detalhadas -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                    {% for detalhe in leilao.detalhes_imagens[1:] %}
+                    <div class="relative">
+                        <img 
+                            src="{{ detalhe.url }}" 
+                            alt="{{ detalhe.alt }}" 
+                            class="w-full h-24 sm:h-32 md:h-40 rounded-lg shadow-md object-cover cursor-pointer transition-transform duration-300 hover:scale-105 hover:opacity-80"
+                            onclick="openModal(this.src, '{{ detalhe.alt }}')"
+                        >
+                        <button 
+                            class="absolute top-2 right-2 bg-white bg-opacity-75 rounded-full p-1 hover:bg-opacity-100 transition"
+                            onclick="openModal(this.parentElement.querySelector('img').src, '{{ detalhe.alt }}')"
+                            aria-label="Ampliar imagem"
+                        >
+                            <svg class="h-4 w-4 text-luxbrown" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                        </button>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Seção de Detalhes do Leilão -->
+            <div class="lg:w-1/3 bg-white rounded-lg shadow-md p-6">
+                <h1 class="text-2xl lg:text-3xl font-bold text-luxgold">{{ leilao.titulo }}</h1>
+                
+                <!-- Detalhes Básicos -->
+                <div class="mt-4">
+                    <p class="text-lg text-gray-800">
+                        Lance Atual: 
+                        <span class="font-semibold text-luxbrown" id="lance_atual">
+                            €{{ "{:,.2f}".format(leilao.lance_atual) }}
+                        </span>
+                    </p>
+                    <p class="mt-1 text-sm text-gray-500">
+                        <span id="local_de_entrega">Local: {{ leilao.local_de_entrega }}</span> | 
+                        <span id="ano_fabricacao">Ano: {{ leilao.ano_fabricacao }}</span> | 
+                        <span id="condicao">Condição: {{ leilao.condicao }}</span>
+                    </p>
+                </div>
+
+                <!-- Avaliações -->
+                <div class="mt-4 flex items-center">
+                    <div class="flex items-center" id="avaliacoes" aria-label="Avaliação de estrelas">
+                        {% for i in range(leilao.media_avaliacoes_int) %}
+                        <svg class="text-luxgold h-5 w-5 flex-shrink-0" fill="currentColor" aria-hidden="true" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z" clip-rule="evenodd"/>
+                        </svg>
+                        {% endfor %}
+                    </div>
+                    <p class="ml-3 text-sm text-gray-500" id="media_avaliacoes">
+                        {{ leilao.media_avaliacoes }} ({{ leilao.avaliacoes }} avaliações)
+                    </p>
+                </div>
+
+                <!-- Descrição -->
+                <div class="mt-6">
+                    <h2 class="sr-only">Descrição</h2>
+                    <p class="text-base text-gray-600" id="descricao">
+                        {{ leilao.descricao }}
+                    </p>
+                </div>
+
+                {% if not leilao.encerrado %}
+                <!-- Tempo Restante -->
+                <div class="mt-6">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-sm font-medium text-gray-700">Tempo Restante</h3>
+                        <p class="text-sm font-medium text-gray-500" id="countdown">{{ leilao.tempo_fim_str }}</p>
+                    </div>
+                    <div class="mt-2 h-2 w-full bg-gray-200 rounded-full overflow-hidden">
+                        <div id="progress-bar" class="h-full bg-luxbrown rounded-full" style="width: 100%"></div>
+                    </div>
+                </div>
+
+                <!-- Formulário de Lance -->
+                <div class="mt-8">
+                    <h3 class="text-sm font-medium text-gray-700">Dar Lance</h3>
+                    <form class="mt-4" action="{{ url_for('leilao_inspecao', leilao_id=leilao.id) }}" method="POST">
+                        <input type="hidden" name="leilao_id" value="{{ leilao.id }}">
+                        <input type="hidden" name="nome" value="Usuário">
+                        <div class="flex rounded-md shadow-sm">
+                            <span class="inline-flex items-center rounded-l-md border border-r-0 border-gray-300 bg-gray-50 px-3 text-gray-500 sm:text-sm">
+                                €
+                            </span>
+                            <input 
+                                type="number" 
+                                name="price" 
+                                id="price" 
+                                step="0.01" 
+                                min="{{ leilao.lance_atual + 0.01 }}" 
+                                class="block w-full min-w-0 flex-1 rounded-none rounded-r-md border-gray-300 py-1.5 text-gray-700 placeholder:text-gray-400 focus:ring-luxbrown focus:border-luxbrown sm:text-sm sm:leading-6" 
+                                placeholder="0.00" 
+                                required
+                                aria-label="Valor do lance"
+                            >
+                        </div>
+                        <button 
+                            type="submit" 
+                            class="mt-6 w-full flex items-center justify-center rounded-md border border-transparent bg-luxgold px-4 py-2 text-base font-medium text-white hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-luxgold focus:ring-offset-2 transition-colors duration-300"
+                        >
+                            Dar Lance
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Histórico de Lances -->
+                <div class="mt-8 border-t border-gray-200 pt-6">
+                    <h3 class="text-sm font-medium text-gray-700">Histórico de Lances (<span id="total_lances">{{ leilao.total_lances }}</span>)</h3>
+                    <ul role="list" class="mt-4 space-y-4" id="historico_lances">
+                        {% for lance in leilao.historico_lances %}
+                        <li class="flex items-center">
+                            <img src="{{ lance.imagem }}" alt="{{ lance.nome }}" class="h-10 w-10 rounded-full object-cover">
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-800">{{ lance.nome }}</p>
+                                <p class="text-sm text-gray-500">€{{ "{:,.2f}".format(lance.valor) }} - {{ lance.tempo }}</p>
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% else %}
+                <!-- Leilão Encerrado -->
+                <div class="mt-8 text-center">
+                    <p class="text-xl font-semibold text-red-600">Este leilão está encerrado.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Imagem -->
+    <div id="imageModal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 hidden" aria-modal="true" role="dialog">
+        <div class="relative max-w-3xl w-full mx-4">
+            <button 
+                onclick="closeModal()" 
+                class="absolute top-4 right-4 text-white text-3xl font-bold focus:outline-none" 
+                aria-label="Fechar modal"
+            >
+                &times;
+            </button>
+            <img id="modalImage" src="" alt="" class="w-full h-auto rounded-lg shadow-lg">
+            <p id="modalAlt" class="mt-2 text-center text-white text-lg"></p>
+        </div>
+    </div>
+</main>
+{% endblock %}
+
+{% block scripts %}
+<!-- Inclui a biblioteca cliente SocketIO -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.4/socket.io.min.js" integrity="sha512-yfRvGjoLkg81+Y2XvV4SJsUBj0kcAzmp3UrIQfz1N1VpxJXn1jbnI0XymHybUwnCbfGQFvX7SmZJ78fkeNMoZA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const socket = io();
+
+        const leilaoId = "{{ leilao.id }}";
+        const encerrado = {{ 'true' if leilao.encerrado else 'false' }};
+
+        // Juntar-se à sala do leilão
+        socket.emit('join_leilao', { 'leilao_id': leilaoId });
+
+        // Confirmação de entrada na sala
+        socket.on('room_joined', (data) => {
+            console.log(data.msg);
+        });
+
+        if (!encerrado) {
+            // Lidando com novos lances
+            socket.on('new_bid', (data) => {
+                if (data.leilao_id === leilaoId) {
+                    console.log(`Novo lance de ${data.nome}: €${data.lance_atual}`);
+                    requestUpdate();
+                }
+            });
+
+            // Função para solicitar atualizações do leilão
+            function requestUpdate() {
+                socket.emit('request_update', { 'leilao_id': leilaoId });
+            }
+
+            // Solicitar atualizações a cada 5 segundos para reduzir a carga
+            setInterval(requestUpdate, 5000);
+
+            // Lidando com dados atualizados do leilão
+            socket.on('update_leilao', (data) => {
+                atualizarDadosLeilao(data);
+            });
+
+            socket.on('update_error', (data) => {
+                console.error(data.msg);
+            });
+
+            // Inicialização do Countdown e Barra de Progresso
+            let countdownInterval;
+            function initializeCountdown(endTime) {
+                if (countdownInterval) {
+                    clearInterval(countdownInterval);
+                }
+
+                const countdownElement = document.getElementById('countdown');
+                const progressBar = document.getElementById('progress-bar');
+                const totalDuration = endTime - (endTime - 6 * 60 * 60 * 1000); // Ajuste conforme necessário
+                const startTime = endTime - totalDuration;
+
+                function updateCountdown() {
+                    const now = new Date().getTime();
+                    const timeLeft = endTime - now;
+
+                    if (timeLeft <= 0) {
+                        clearInterval(countdownInterval);
+                        countdownElement.innerText = "Leilão encerrado";
+                        progressBar.style.width = "0%";
+                        socket.emit('leilao_encerrado', { 'leilao_id': leilaoId });
+                        return;
+                    }
+
+                    const hours = Math.floor(timeLeft / (1000 * 60 * 60));
+                    const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+                    const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+
+                    countdownElement.innerText = `${padZero(hours)}:${padZero(minutes)}:${padZero(seconds)}`;
+
+                    const progress = ((timeLeft) / totalDuration) * 100;
+                    progressBar.style.width = `${progress}%`;
+                }
+
+                function padZero(num) {
+                    return num.toString().padStart(2, '0');
+                }
+
+                updateCountdown();
+                countdownInterval = setInterval(updateCountdown, 1000);
+            }
+
+            // Atualizar os dados do leilão na página
+            function atualizarDadosLeilao(data) {
+                // Atualizar Lance Atual
+                const lanceAtualElement = document.getElementById('lance_atual');
+                if (lanceAtualElement && data.lance_atual) {
+                    lanceAtualElement.textContent = `€${Number(data.lance_atual).toLocaleString('de-DE', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+                }
+
+                // Atualizar Avaliações
+                const avaliacoesElement = document.getElementById('media_avaliacoes');
+                if (avaliacoesElement && data.media_avaliacoes !== undefined && data.avaliacoes !== undefined) {
+                    avaliacoesElement.textContent = `${data.media_avaliacoes} (${data.avaliacoes} avaliações)`;
+
+                    // Atualizar estrelas de avaliação
+                    const estrelasContainer = document.getElementById('avaliacoes');
+                    if (estrelasContainer) {
+                        estrelasContainer.innerHTML = '';
+                        const mediaAval = Math.floor(data.media_avaliacoes);
+                        for (let i = 0; i < mediaAval; i++) {
+                            estrelasContainer.innerHTML += `
+                                <svg class="text-luxgold h-5 w-5 flex-shrink-0" fill="currentColor" aria-hidden="true" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z" clip-rule="evenodd"/>
+                                </svg>
+                            `;
+                        }
+                    }
+                }
+
+                // Atualizar Local de Entrega
+                const localEntregaElement = document.getElementById('local_de_entrega');
+                if (localEntregaElement && data.local_de_entrega) {
+                    localEntregaElement.textContent = `Local: ${data.local_de_entrega}`;
+                }
+
+                // Atualizar Ano de Fabricação
+                const anoFabricacaoElement = document.getElementById('ano_fabricacao');
+                if (anoFabricacaoElement && data.ano_fabricacao) {
+                    anoFabricacaoElement.textContent = `Ano: ${data.ano_fabricacao}`;
+                }
+
+                // Atualizar Condição
+                const condicaoElement = document.getElementById('condicao');
+                if (condicaoElement && data.condicao) {
+                    condicaoElement.textContent = `Condição: ${data.condicao}`;
+                }
+
+                // Atualizar Descrição
+                const descricaoElement = document.getElementById('descricao');
+                if (descricaoElement && data.descricao) {
+                    descricaoElement.textContent = data.descricao;
+                }
+
+                // Atualizar Tempo Restante e Barra de Progresso
+                const countdownElement = document.getElementById('countdown');
+                const progressBar = document.getElementById('progress-bar');
+                if (countdownElement && progressBar && data.tempo_fim) {
+                    const endTime = new Date(data.tempo_fim).getTime();
+                    initializeCountdown(endTime);
+                }
+
+                // Atualizar Total de Lances
+                const totalLancesElement = document.getElementById('total_lances');
+                if (totalLancesElement && data.total_lances !== undefined) {
+                    totalLancesElement.textContent = data.total_lances;
+                }
+
+                // Atualizar Histórico de Lances (opcional)
+                const historicoLancesElement = document.getElementById('historico_lances');
+                if (historicoLancesElement && data.historico_lances) {
+                    historicoLancesElement.innerHTML = '';
+                    data.historico_lances.forEach(lance => {
+                        historicoLancesElement.innerHTML += `
+                            <li class="flex items-center">
+                                <img src="${lance.imagem}" alt="${lance.nome}" class="h-10 w-10 rounded-full object-cover">
+                                <div class="ml-4">
+                                    <p class="text-sm font-medium text-gray-800">${lance.nome}</p>
+                                    <p class="text-sm text-gray-500">€${Number(lance.valor).toLocaleString('de-DE', {minimumFractionDigits: 2, maximumFractionDigits: 2})} - ${lance.tempo}</p>
+                                </div>
+                            </li>
+                        `;
+                    });
+                }
+            }
+
+            // Inicializar o countdown com o tempo final inicial
+            const initialEndTime = new Date("{{ leilao.tempo_fim_str }}").getTime();
+            initializeCountdown(initialEndTime);
+        } else {
+            console.log('Leilão encerrado. Atualizações em tempo real desativadas.');
+        }
+    });
+
+    // Função para atualizar os dados do leilão
+    function atualizarDadosLeilao(data) {
+        // Implementar conforme necessário
+    }
+
+    // Modal de Imagem
+    function openModal(src, alt) {
+        const modal = document.getElementById('imageModal');
+        const modalImage = document.getElementById('modalImage');
+        const modalAlt = document.getElementById('modalAlt');
+
+        modalImage.src = src;
+        modalImage.alt = alt;
+        modalAlt.textContent = alt;
+
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+
+    function closeModal() {
+        const modal = document.getElementById('imageModal');
+        const modalImage = document.getElementById('modalImage');
+        const modalAlt = document.getElementById('modalAlt');
+
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+
+        modalImage.src = '';
+        modalAlt.textContent = '';
+    }
+
+    // Fechar o modal ao clicar fora da imagem
+    window.onclick = function(event) {
+        const modal = document.getElementById('imageModal');
+        if (event.target == modal) {
+            closeModal();
+        }
+    }
+</script>
+{% endblock %}
