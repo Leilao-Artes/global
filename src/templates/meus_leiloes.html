@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}Os meus leilões - BID FLOW{% endblock %}
+
+{% block content %}
+<div class="space-y-8">
+    <div class="text-center">
+        <h1 class="text-2xl font-bold text-luxgold">Os meus leilões</h1>
+        <p class="text-gray-600 text-sm">Acompanhe o estado dos seus leilões</p>
+    </div>
+
+    {% if leiloes|length == 0 %}
+    <div class="text-center text-gray-600 mt-8">
+        Você não possui leilões criados.
+    </div>
+    {% else %}
+    <div class="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+        {% for leilao in leiloes %}
+        <div class="bg-white overflow-hidden shadow-md rounded-lg p-4">
+            <h2 class="text-lg font-semibold text-gray-900 mb-2">{{ leilao.titulo }}</h2>
+            <p class="text-sm text-gray-600 mb-3">
+                Lance atual: €{{ "{:,.2f}".format(leilao.lance_atual) }}
+            </p>
+            <p class="text-sm mb-3">
+                Estado: 
+                {% if leilao.encerrado %}
+                    <span class="text-red-500">Encerrado</span>
+                {% else %}
+                    <span class="text-green-500">Ativo</span>
+                {% endif %}
+            </p>
+            {% if leilao.encerrado %}
+                <p class="text-sm mb-3">
+                    Ganhador: 
+                    {% if leilao.ganhador %}
+                        <span class="text-luxgold font-medium">{{ leilao.ganhador }}</span>
+                    {% else %}
+                        <span class="text-gray-500">Ninguém deu lance</span>
+                    {% endif %}
+                </p>
+            {% endif %}
+
+            <p class="text-sm text-gray-500">
+                Pessoas visualizando: Em breve...
+            </p>
+
+            <a href="{{ url_for('leilao_inspecao', leilao_id=leilao.id) }}" class="inline-block mt-4 px-4 py-2 bg-luxgold text-white rounded hover:bg-yellow-600 transition">
+                Ver detalhes
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="pt-PT" class="scroll-smooth">
 <head>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='orange'><circle cx='10' cy='10' r='8'/></svg>">
+
     <meta charset="UTF-8">
     <meta name="description" content="A tua plataforma exclusiva para descobrir, avaliar e licitar em obras de arte autênticas. Leilões online com segurança, transparência e luxo." />
     <meta name="keywords" content="Leilões, Arte, Investimento, Colecionismo, Obras de Arte, Luxo" />
@@ -13,11 +15,10 @@
             theme: {
                 extend: {
                     colors: {
-                        // Paleta atualizada para tons mais suaves e luxuosos
-                        'luxcream': '#FCFAF5', 
-                        'luxgold': '#D4AF37',
-                        'luxbrown': '#7F675B',
-                        'luxtext': '#2C2C2C',
+                        'luxcream': '#F9F7F2',
+                        'luxgold': '#C8A951',
+                        'luxbrown': '#5C4B45',
+                        'luxtext': '#1E1E1E',
                     },
                     fontFamily: {
                         'serif': ['Merriweather', 'serif'],
@@ -32,7 +33,7 @@
 <body class="bg-luxcream font-sans text-luxtext">
 
     <!-- Cabeçalho / Navegação -->
-    <header class="fixed w-full z-20 bg-luxcream bg-opacity-95 border-b border-luxbrown/30">
+    <header class="fixed w-full z-20 bg-luxcream bg-opacity-90 backdrop-blur-sm border-b border-luxbrown/20">
         <nav class="container mx-auto px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
                 <a href="{{ url_for('landing_page') }}" class="flex items-center space-x-2 text-luxgold font-bold">
@@ -43,13 +44,14 @@
                 </a>
                 <div class="hidden md:flex items-center space-x-8 font-medium">
                     <a href="#recursos" class="text-luxtext hover:text-luxgold transition duration-300">Recursos</a>
+                    <a href="/documentacao" class="text-luxtext hover:text-luxgold transition duration-300">Documentação</a>
                     <a href="#leiloes" class="text-luxtext hover:text-luxgold transition duration-300">Leilões Ativos</a>
                     <a href="#depoimentos" class="text-luxtext hover:text-luxgold transition duration-300">Depoimentos</a>
                     {% if current_user.is_authenticated %}
-                        <a href="{{ url_for('dashboard') }}" class="bg-luxgold text-white px-4 py-2 rounded hover:opacity-90 transition duration-300">Dashboard</a>
+                        <a href="{{ url_for('dashboard') }}" class="bg-luxgold text-white px-4 py-2 rounded hover:bg-opacity-90 transition duration-300">Dashboard</a>
                         <a href="{{ url_for('logout') }}" class="border border-luxgold text-luxtext px-4 py-2 rounded hover:bg-luxgold hover:text-white transition duration-300">Sair</a>
                     {% else %}
-                        <a href="{{ url_for('login') }}" class="bg-luxgold text-white px-4 py-2 rounded hover:opacity-90 transition duration-300">Entrar</a>
+                        <a href="{{ url_for('login') }}" class="bg-luxgold text-white px-4 py-2 rounded hover:bg-opacity-90 transition duration-300">Entrar</a>
                         <a href="{{ url_for('register') }}" class="border border-luxgold text-luxtext px-4 py-2 rounded hover:bg-luxgold hover:text-white transition duration-300">Criar Conta</a>
                     {% endif %}
                 </div>
@@ -58,24 +60,29 @@
     </header>
 
     <!-- Hero -->
-    <section class="min-h-screen flex items-center justify-center bg-gradient-to-b from-white to-luxcream pt-32 pb-20 px-4 text-center">
-        <div class="max-w-4xl mx-auto">
-            <h1 class="text-5xl lg:text-6xl font-serif font-bold text-luxgold mb-6">Arte Autêntica, Oportunidades Excepcionais</h1>
-            <p class="text-xl lg:text-2xl text-luxtext mb-10">
-                Bem-vindo ao <span class="text-luxgold font-semibold">BID FLOW</span>. Aqui encontrarás leilões de arte criteriosamente selecionada, 
-                licenciada por peritos, e disponível para lances em tempo real, num ambiente seguro e verdadeiramente luxuoso.
+    <section class="min-h-screen flex items-center justify-center pt-40 pb-20 px-4 text-center bg-gradient-to-b from-white to-luxcream">
+        <!-- Caso queiras, podes adicionar uma imagem de fundo sutil:
+        <div class="absolute inset-0 bg-center bg-cover opacity-10" style="background-image:url('URL_DA_IMAGEM');"></div> 
+        -->
+        <div class="relative max-w-4xl mx-auto">
+            <h1 class="text-5xl lg:text-7xl font-serif font-black text-luxbrown mb-6 leading-tight">
+                Arte Autêntica,<br> Oportunidades Excepcionais
+            </h1>
+            <p class="text-xl lg:text-2xl text-gray-700 mb-10 max-w-3xl mx-auto">
+                Bem-vindo ao <span class="text-luxgold font-semibold">BID FLOW</span>, a tua plataforma de referência para leilões de arte. 
+                Aqui, cada obra é cuidadosamente verificada por peritos, pronta a receber o teu lance, num ambiente seguro, transparente e luxuoso.
             </p>
-            <div class="space-x-4">
-                <a href="#leiloes" class="inline-block bg-luxgold text-white px-8 py-3 rounded-full text-lg font-semibold hover:opacity-90 transition duration-300">Explorar Leilões</a>
+            <div class="space-y-4 sm:space-x-4 sm:space-y-0 flex flex-col sm:inline-flex sm:flex-row justify-center">
+                <a href="#leiloes" class="bg-luxgold text-white px-8 py-3 rounded-full text-lg font-semibold hover:bg-opacity-90 transition duration-300">Explorar Leilões</a>
                 {% if not current_user.is_authenticated %}
-                <a href="{{ url_for('register') }}" class="inline-block border border-luxgold text-luxtext px-8 py-3 rounded-full text-lg font-semibold hover:bg-luxgold hover:text-white transition duration-300">Criar a Minha Conta</a>
+                <a href="{{ url_for('register') }}" class="border border-luxgold text-luxtext px-8 py-3 rounded-full text-lg font-semibold hover:bg-luxgold hover:text-white transition duration-300">Criar Conta</a>
                 {% endif %}
             </div>
         </div>
     </section>
 
     <!-- Desenvolvimento e Equipa -->
-    <section class="py-12 bg-luxcream">
+    <section class="py-20 bg-white">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8">
             <!-- Título da Seção -->
             <div class="text-center mb-12">
@@ -89,7 +96,7 @@
                 <div class="space-y-6">
                     <h3 class="text-2xl font-semibold text-luxgold">Trabalho em Equipa</h3>
                     <p class="text-gray-800">
-                        A nossa equipa é composta por programadores, designers e especialistas em marketing que trabalham em conjunto para garantir a excelência da plataforma. Abaixo, apresentamos algumas das nossas principais tarefas e o respetivo estado:
+                        A nossa equipa é composta por programadores, designers e especialistas em marketing, trabalhando em harmonia para assegurar a qualidade da plataforma. Eis algumas tarefas que concluímos:
                     </p>
     
                     <!-- Tabela de Tarefas -->
@@ -109,51 +116,50 @@
                                 <tr>
                                     <td class="px-6 py-4 border-b border-gray-200">#1</td>
                                     <td class="px-6 py-4 border-b border-gray-200">Tratamento de dados</td>
-                                    <td class="px-6 py-4 border-b border-gray-200">Escolha do tema (plataforma de leilão) <br> Divisão das tarefas</td>
+                                    <td class="px-6 py-4 border-b border-gray-200">Definição do tema, divisão de tarefas</td>
                                     <td class="px-6 py-4 border-b border-gray-200 text-center">1</td>
-                                    <td class="px-6 py-4 border-b border-gray-200 text-center">Feito</td>
+                                    <td class="px-6 py-4 border-b border-gray-200 text-center text-green-600 font-semibold">Feito</td>
                                     <td class="px-6 py-4 border-b border-gray-200 text-center">1</td>
                                 </tr>
                                 <tr>
                                     <td class="px-6 py-4 border-b border-gray-200">#2</td>
                                     <td class="px-6 py-4 border-b border-gray-200">Layout</td>
                                     <td class="px-6 py-4 border-b border-gray-200">
-                                        Criação da galeria de produtos <br>
-                                        Botões para outras áreas da plataforma <br>
-                                        Página de lance de um só artigo <br>
-                                        Finalização da galeria de um só produto <br>
-                                        Implementação da função de Login <br>
-                                        Mostrador de notificações
+                                        Criação da galeria de produtos, Botões de navegação, Página de lance e galeria individual, Login e notificações
                                     </td>
                                     <td class="px-6 py-4 border-b border-gray-200 text-center">1</td>
-                                    <td class="px-6 py-4 border-b border-gray-200 text-center">Feito</td>
+                                    <td class="px-6 py-4 border-b border-gray-200 text-center text-green-600 font-semibold">Feito</td>
                                     <td class="px-6 py-4 border-b border-gray-200 text-center">2</td>
                                 </tr>
                                 <tr>
                                     <td class="px-6 py-4 border-b border-gray-200">#3</td>
                                     <td class="px-6 py-4 border-b border-gray-200">Lógica</td>
                                     <td class="px-6 py-4 border-b border-gray-200">
-                                        Função de criação de leilões <br>
-                                        Login/Registo <br>
-                                        Função de Lances <br>
-                                        Base de dados
+                                        Funções de criação de leilões, Login/Registo, Lances e base de dados
                                     </td>
                                     <td class="px-6 py-4 border-b border-gray-200 text-center">2</td>
-                                    <td class="px-6 py-4 border-b border-gray-200 text-center">Feito</td>
+                                    <td class="px-6 py-4 border-b border-gray-200 text-center text-green-600 font-semibold">Feito</td>
                                     <td class="px-6 py-4 border-b border-gray-200 text-center">2</td>
                                 </tr>
                                 <tr>
                                     <td class="px-6 py-4 border-b border-gray-200">#4</td>
                                     <td class="px-6 py-4 border-b border-gray-200">Teste</td>
                                     <td class="px-6 py-4 border-b border-gray-200">
-                                        Teste dos botões <br>
-                                        Teste do sistema de lances <br>
-                                        Teste da galeria <br>
-                                        Teste de Login/Registo
+                                        Teste de botões, sistema de lances, galeria, Login/Registo
                                     </td>
                                     <td class="px-6 py-4 border-b border-gray-200 text-center">2</td>
-                                    <td class="px-6 py-4 border-b border-gray-200 text-center">Feito</td>
+                                    <td class="px-6 py-4 border-b border-gray-200 text-center text-green-600 font-semibold">Feito</td>
                                     <td class="px-6 py-4 border-b border-gray-200 text-center">3</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-6 py-4 border-b border-gray-200">#5</td>
+                                    <td class="px-6 py-4 border-b border-gray-200">Apresentação e Produção</td>
+                                    <td class="px-6 py-4 border-b border-gray-200">
+                                        Preparação da apresentação final e colocação do projeto em produção
+                                    </td>
+                                    <td class="px-6 py-4 border-b border-gray-200 text-center">1</td>
+                                    <td class="px-6 py-4 border-b border-gray-200 text-center text-red-600 font-semibold">N/A</td>
+                                    <td class="px-6 py-4 border-b border-gray-200 text-center">4</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -163,74 +169,75 @@
     
         </div>
     </section>
-    
     <!-- Recursos -->
-    <section id="recursos" class="py-20 bg-white">
+    <section id="recursos" class="py-20 bg-luxcream">
         <div class="container mx-auto px-6 lg:px-8">
-            <h2 class="text-3xl font-serif font-bold text-center text-luxtext mb-12">Porque Escolher o BID FLOW?</h2>
+            <h2 class="text-3xl font-serif font-bold text-center text-luxbrown mb-12">Porquê Escolher o BID FLOW?</h2>
             <div class="grid md:grid-cols-3 gap-12 text-center">
                 <div class="text-luxtext">
                     <svg class="w-12 h-12 mx-auto mb-6 text-luxgold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                     </svg>
-                    <h3 class="text-xl font-semibold mb-3">Lances em Tempo Real</h3>
-                    <p class="text-gray-700">Acompanha cada oferta com atualizações instantâneas, garantindo total transparência e emoção no processo.</p>
+                    <h3 class="text-xl font-semibold mb-3 text-luxbrown">Lances em Tempo Real</h3>
+                    <p class="text-gray-700">Acompanha cada oferta com atualizações instantâneas, garantindo transparência e emoção a cada segundo.</p>
                 </div>
                 <div class="text-luxtext">
                     <svg class="w-12 h-12 mx-auto mb-6 text-luxgold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944 11.955 11.955 0 013.382 5.984 12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
                     </svg>
-                    <h3 class="text-xl font-semibold mb-3">Segurança e Autenticidade</h3>
-                    <p class="text-gray-700">Obras verificadas por especialistas, garantindo autenticidade, tranquilidade e compras sem preocupações.</p>
+                    <h3 class="text-xl font-semibold mb-3 text-luxbrown">Segurança e Autenticidade</h3>
+                    <p class="text-gray-700">Obras verificadas por especialistas, garantindo a tua tranquilidade em cada compra.</p>
                 </div>
                 <div class="text-luxtext">
                     <svg class="w-12 h-12 mx-auto mb-6 text-luxgold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"></path>
                     </svg>
-                    <h3 class="text-xl font-semibold mb-3">Valorização do Investimento</h3>
-                    <p class="text-gray-700">Investe em peças raras e exclusivas, expandindo a tua coleção e potencialmente o teu património cultural e financeiro.</p>
+                    <h3 class="text-xl font-semibold mb-3 text-luxbrown">Valorização do Investimento</h3>
+                    <p class="text-gray-700">Investe em peças raras e exclusivas, expandindo a tua coleção e potencial financeiro.</p>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- Leilões Ativos -->
-    <section id="leiloes" class="py-20 bg-luxcream">
+    <section id="leiloes" class="py-20 bg-white">
         <div class="container mx-auto px-6 lg:px-8">
-            <h2 class="text-3xl font-serif font-bold text-luxtext text-center mb-12">Leilões Ativos</h2>
+            <h2 class="text-3xl font-serif font-bold text-luxbrown text-center mb-12">Leilões Ativos</h2>
             <div class="grid md:grid-cols-3 gap-8">
                 {% for leilao in leiloes %}
-                <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
+                <div class="bg-luxcream rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
                     {% if leilao.detalhes_imagens and leilao.detalhes_imagens|length > 0 %}
                         <img src="{{ leilao.detalhes_imagens[0].url }}" alt="{{ leilao.detalhes_imagens[0].alt }}" class="w-full h-48 object-cover">
                     {% else %}
                         <img src="https://via.placeholder.com/400x300" alt="Imagem do Leilão" class="w-full h-48 object-cover">
                     {% endif %}
                     <div class="p-4 text-luxtext">
-                        <h3 class="text-xl font-semibold mb-2">{{ leilao.titulo }}</h3>
+                        <h3 class="text-xl font-semibold mb-2 text-luxbrown">{{ leilao.titulo }}</h3>
                         <p class="mb-4 text-gray-700">Lance Atual: €{{ "%.2f"|format(leilao.lance_atual) }}</p>
-                        <a href="{{ url_for('leilao_inspecao', leilao_id=leilao.id) }}" class="block text-center bg-luxgold text-white py-2 rounded hover:opacity-90 transition duration-300">Participar Agora</a>
+                        <a href="{{ url_for('leilao_inspecao', leilao_id=leilao.id) }}" class="block text-center bg-luxgold text-white py-2 rounded hover:bg-opacity-90 transition duration-300">
+                            Participar Agora
+                        </a>
                     </div>
                 </div>
                 {% endfor %}
             </div>
             <div class="text-center mt-12">
-                <a href="{{ url_for('dashboard') }}" class="inline-block bg-luxgold text-white px-8 py-3 rounded-full text-lg font-semibold hover:opacity-90 transition duration-300">Ver Todos os Leilões</a>
+                <a href="{{ url_for('dashboard') }}" class="inline-block bg-luxgold text-white px-8 py-3 rounded-full text-lg font-semibold hover:bg-opacity-90 transition duration-300">Ver Todos os Leilões</a>
             </div>
         </div>
     </section>
 
     <!-- Depoimentos -->
-    <section id="depoimentos" class="py-20 bg-white">
+    <section id="depoimentos" class="py-20 bg-luxcream">
         <div class="container mx-auto px-6 lg:px-8">
-            <h2 class="text-3xl font-serif font-bold text-luxtext text-center mb-12">O que Dizem os Nossos Clientes</h2>
+            <h2 class="text-3xl font-serif font-bold text-luxbrown text-center mb-12">O que Dizem os Nossos Clientes</h2>
             <div class="grid md:grid-cols-2 gap-8">
-                <div class="bg-luxcream p-6 rounded-lg text-luxtext">
-                    <p class="mb-4 italic">"A experiência na BID FLOW foi incrível. A qualidade das obras e a rapidez nas licitações superaram as minhas expectativas."</p>
+                <div class="bg-white p-6 rounded-lg text-luxtext shadow hover:shadow-md transition-shadow duration-300">
+                    <p class="mb-4 italic text-gray-800">"A experiência na BID FLOW foi incrível. A qualidade das obras e a rapidez nas licitações superaram as minhas expectativas."</p>
                     <p class="font-semibold text-luxbrown">- Maria Santos, Colecionadora</p>
                 </div>
-                <div class="bg-luxcream p-6 rounded-lg text-luxtext">
-                    <p class="mb-4 italic">"Encontrei uma plataforma segura, com um catálogo impressionante e um sistema de lances simples. Recomendo vivamente."</p>
+                <div class="bg-white p-6 rounded-lg text-luxtext shadow hover:shadow-md transition-shadow duration-300">
+                    <p class="mb-4 italic text-gray-800">"Encontrei uma plataforma segura, com um catálogo impressionante e um sistema de lances simples. Recomendo vivamente."</p>
                     <p class="font-semibold text-luxbrown">- João Pereira, Artista Plástico</p>
                 </div>
             </div>
@@ -238,23 +245,23 @@
     </section>
 
     <!-- CTA Final -->
-    <section class="py-20 bg-luxcream">
+    <section class="py-20 bg-white">
         <div class="container mx-auto px-6 lg:px-8 text-center">
-            <h2 class="text-3xl font-serif font-bold mb-4 text-luxtext">Pronto para Dar o Próximo Passo?</h2>
+            <h2 class="text-3xl font-serif font-bold mb-4 text-luxbrown">Pronto para Dar o Próximo Passo?</h2>
             <p class="text-xl mb-8 text-gray-700">
                 Junta-te ao <span class="text-luxgold font-semibold">BID FLOW</span> e mergulha num universo de arte exclusiva.  
-                Melhora a tua coleção, investe em obras valiosas e desfruta de uma comunidade apaixonada por arte.
+                Melhora a tua coleção, investe em obras valiosas e faz parte de uma comunidade apaixonada por arte.
             </p>
             {% if not current_user.is_authenticated %}
-                <a href="{{ url_for('register') }}" class="bg-luxgold text-white px-8 py-3 rounded-full text-lg font-semibold hover:opacity-90 transition duration-300">Criar a Minha Conta</a>
+                <a href="{{ url_for('register') }}" class="bg-luxgold text-white px-8 py-3 rounded-full text-lg font-semibold hover:bg-opacity-90 transition duration-300">Criar Conta</a>
             {% else %}
-                <a href="{{ url_for('dashboard') }}" class="bg-luxgold text-white px-8 py-3 rounded-full text-lg font-semibold hover:opacity-90 transition duration-300">Ir para o Dashboard</a>
+                <a href="{{ url_for('dashboard') }}" class="bg-luxgold text-white px-8 py-3 rounded-full text-lg font-semibold hover:bg-opacity-90 transition duration-300">Ir para o Dashboard</a>
             {% endif %}
         </div>
     </section>
 
     <!-- Rodapé -->
-    <footer class="bg-white text-luxtext py-10 border-t border-luxbrown/30">
+    <footer class="bg-luxcream text-luxtext py-10 border-t border-luxbrown/30">
         <div class="container mx-auto px-6 lg:px-8">
             <div class="flex flex-wrap justify-between mb-8">
                 <div class="w-full md:w-1/4 mb-6 md:mb-0">
@@ -275,22 +282,9 @@
                     <p class="text-gray-700">Email: info@bidflow.com</p>
                     <p class="text-gray-700">Telefone: +351 123 456 789</p>
                 </div>
-                <div class="w-full md:w-1/4">
-                    <h3 class="text-xl font-serif font-bold mb-4 text-luxbrown">Segue-nos</h3>
-                    <div class="flex space-x-4 text-gray-600">
-                        <a href="#" class="hover:text-luxgold transition duration-300">
-                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M22.673 0H1.327C.595 0 0 .594 0 1.326V22.67c0 .732.595 1.327 1.327 1.327h11.495v-9.293H9.847v-3.47h2.975V9.43c0-2.956 1.792-4.67 4.464-4.67 1.292 0 2.653.231 2.653.231v2.917h-1.496c-1.472 0-1.93.916-1.93 1.855v2.23h3.285l-.526 3.47h-2.76V24h5.386c.732 0 1.327-.595 1.327-1.327V1.326C24 .595 23.405 0 22.673 0z"/></svg>
-                        </a>
-                        <a href="#" class="hover:text-luxgold transition duration-300">
-                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M24 4.509a9.832 9.832 0 01-2.828.775 4.93 4.93 0 002.164-2.722 9.863 9.863 0 01-3.127 1.195c-.896-.957-2.172-1.555-3.59-1.555-2.718 0-4.922 2.203-4.922 4.92 0 .386.045.763.127 1.124-4.09-.206-7.718-2.165-10.147-5.146-.425.725-.667 1.565-.667 2.462 0 1.699.867 3.197 2.188 4.078a4.93 4.93 0 01-2.228-.616v.062c0 2.372 1.684 4.348 3.918 4.795a4.996 4.996 0 01-2.224.084c.63 1.959 2.445 3.376 4.6 3.416-1.68 1.316-3.807 2.1-6.102 2.1-.396 0-.788-.022-1.177-.067 2.178 1.396 4.768 2.21 7.548 2.21 9.057 0 14.003-7.496 14.003-13.995 0-.214-.004-.428-.014-.64A9.985 9.985 0 0024 4.51z"/></svg>
-                        </a>
-                        <a href="#" class="hover:text-luxgold transition duration-300">
-                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C8.741 0 8.333.015 7.053.072c-1.284.059-2.162.264-2.92.558a5.737 5.737 0 00-2.07 1.35A5.704 5.704 0 00.63 4.14c-.295.758-.499 1.636-.558 2.92C.015 8.333 0 8.741 0 12s.015 3.667.072 4.947c.059 1.283.263 2.162.558 2.92.298.788.717 1.458 1.384 2.126.667.668 1.337 1.087 2.126 1.384.758.295 1.636.499 2.92.558 1.28.057 1.688.072 4.947.072s3.667-.015 4.947-.072c1.283-.059 2.162-.263 2.92-.558a5.686 5.686 0 001.384-.9 5.69 5.69 0 00.9-1.384c.295-.759.499-1.637.558-2.92.057-1.28.072-1.688.072-4.947s-.015-3.667-.072-4.947c-.059-1.283-.263-2.162-.558-2.92a5.69 5.69 0 00-.9-1.384A5.682 5.682 0 0019.86.63C19.101.335 18.223.131 16.94.072 15.66.015 15.259 0 12 0zm0 2.16c3.204 0 3.586.016 4.851.07 1.171.056 1.808.249 2.229.414.562.217.96.478 1.382.9.419.419.68.818.896 1.38.166.42.359 1.059.416 2.23.057 1.265.071 1.647.071 4.851s-.016 3.586-.07 4.851c-.057 1.171-.25 1.809-.416 2.23-.217.561-.478.96-.9 1.382-.419.419-.819.679-1.38.896-.421.165-1.059.358-2.23.414-1.265.057-1.647.071-4.851.071-3.204 0-3.586-.016-4.851-.07-1.171-.057-1.809-.25-2.23-.416a3.536 3.536 0 01-1.382-.9 3.53 3.53 0 01-.896-1.38c-.165-.422-.358-1.06-.414-2.23C2.176 15.586 2.16 15.204 2.16 12s.016-3.586.07-4.851c.057-1.171.25-1.809.416-2.23.217-.562.478-.96.9-1.382.419-.419.81-.68 1.38-.896.422-.165 1.06-.358 2.23-.414C8.414 2.176 8.796 2.16 12 2.16zm0 3.784a6.056 6.056 0 100 12.112 6.056 6.056 0 000-12.112zm0 9.928a3.872 3.872 0 110-7.744 3.872 3.872 0 010 7.744zm7.865-10.081a1.44 1.44 0 11-2.88 0 1.44 1.44 0 012.88 0z"/></svg>
-                        </a>
-                    </div>
-                </div>
+
             </div>
-            <div class="border-t border-luxbrown/30 mt-8 pt-8 text-center text-gray-500">
+            <div class="border-t border-luxbrown/20 mt-8 pt-8 text-center text-gray-500">
                 <p>&copy; BID FLOW. Todos os direitos reservados.</p>
             </div>
         </div>

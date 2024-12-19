@@ -80,6 +80,9 @@ class Leilao(db.Model):
     ano_fabricacao = db.Column(db.Integer, nullable=False)
     condicao = db.Column(db.String, nullable=False)
     total_lances = db.Column(db.Integer, default=0)
+    # Novo campo para identificar o usuário criador do leilão
+    user_id = db.Column(db.String, db.ForeignKey('users.id'), nullable=False)
+
     historico_lances = db.relationship('Lance', backref='leilao', cascade='all, delete-orphan', lazy=True)
     detalhes_imagens = db.relationship('Imagem', backref='leilao', cascade='all, delete-orphan', lazy=True)
 
@@ -135,7 +138,7 @@ def serialize_leilao(leilao):
         'avaliacoes': leilao.avaliacoes,
         'media_avaliacoes': leilao.media_avaliacoes,
         'descricao': leilao.descricao,
-        'tempo_inicio': leilao.tempo_inicio.strftime('%Y-%m-%d %H:%M:%S'),  # Novo Campo
+        'tempo_inicio': leilao.tempo_inicio.strftime('%Y-%m-%d %H:%M:%S'),
         'tempo_fim': leilao.tempo_fim.strftime('%Y-%m-%d %H:%M:%S'),
         'local_de_entrega': leilao.local_de_entrega,
         'ano_fabricacao': leilao.ano_fabricacao,
@@ -219,6 +222,14 @@ def landing_page():
     
     return render_template('landingpage.html', leiloes=leiloes_ativos, agora=agora)
 
+#rota documentacao
+@app.route('/documentacao')
+def documentacao():
+    """
+    Rota da página de documentação.
+    """
+    return render_template('doc.html')
+
 @app.route('/dashboard')
 @login_required
 def dashboard():
@@ -232,7 +243,7 @@ def dashboard():
     ordenar = request.args.get('ordenar', '').strip()
     status = request.args.get('status', 'all').strip()
     page = request.args.get('page', 1, type=int)
-    per_page = 18  # Número de leilões por página (ajustado para até 6 cards por linha)
+    per_page = 18  # Número de leilões por página
     cards_per_row = request.args.get('cards_per_row', 3, type=int)  # Número de cards por linha
 
     query = Leilao.query
@@ -263,7 +274,6 @@ def dashboard():
         # Filtra os leilões nos quais o usuário atual participou
         leilao_ids = [l.leilao_id for l in current_user.lances]
         query = query.filter(Leilao.id.in_(leilao_ids))
-    # 'all' não aplica filtro adicional
 
     # Ordenações
     if ordenar == 'lance':
@@ -275,7 +285,7 @@ def dashboard():
 
     # Limitar o número de cards por linha (máximo 6)
     if cards_per_row not in [1, 2, 3, 4, 5, 6]:
-        cards_per_row = 3  # Valor padrão
+        cards_per_row = 3
 
     # Paginação
     pagination = query.paginate(page=page, per_page=per_page, error_out=False)
@@ -301,6 +311,8 @@ def dashboard():
         ordenar=ordenar,
         cards_per_row=cards_per_row
     )
+
+
 
 @app.route('/leilao/<leilao_id>', methods=['GET', 'POST'])
 @login_required
@@ -335,7 +347,7 @@ def leilao_inspecao(leilao_id):
                 db.session.commit()
                 flash(f'Parabéns, {nome_usuario}! Seu lance de €{lance:,.2f} foi registrado com sucesso.', 'success')
                 
-                # Emite atualização em tempo real para todos os conectados nesse leilão
+                # Emite atualização em tempo real
                 socketio.emit('new_bid', {
                     'leilao_id': leilao.id,
                     'lance_atual': leilao.lance_atual,
@@ -357,8 +369,6 @@ def leilao_inspecao(leilao_id):
 def criar_leilao():
     """
     Rota para criação de novos leilões.
-    GET: Exibe o formulário de criação de leilão.
-    POST: Processa os dados e cria um novo leilão.
     """
     if request.method == 'POST':
         titulo = request.form.get('titulo')
@@ -414,12 +424,13 @@ def criar_leilao():
             avaliacoes=0,
             media_avaliacoes=5.0,
             descricao=descricao,
-            tempo_inicio=datetime.utcnow(),  # Define o tempo de início
+            tempo_inicio=datetime.utcnow(),
             tempo_fim=datetime.utcnow() + timedelta(hours=horas),
             local_de_entrega=local_de_entrega,
             ano_fabricacao=ano_fabricacao,
             condicao=condicao,
-            total_lances=0
+            total_lances=0,
+            user_id=current_user.id # Associa o leilão ao usuário logado
         )
         db.session.add(novo_leilao)
         db.session.commit()
@@ -435,9 +446,7 @@ def meus_lances():
     """
     Rota que exibe todos os lances do usuário atual.
     """
-    # Lista todos os lances do usuário atual
     meus_lances = Lance.query.filter_by(user_id=current_user.id).all()
-    # Para cada lance, pegar o leilão e verificar se o lance é o maior ou não
     lances_info = []
     for lance in meus_lances:
         leilao = Leilao.query.filter_by(id=lance.leilao_id).first()
@@ -455,6 +464,38 @@ def meus_lances():
             'status': status
         })
     return render_template('meus_lances.html', lances_info=lances_info)
+
+# Nova rota "Os meus leilões"
+@app.route('/meus-leiloes')
+@login_required
+def meus_leiloes():
+    """
+    Rota que exibe todos os leilões criados pelo usuário atual.
+    """
+    agora = datetime.utcnow()
+    # Filtra os leilões criados pelo usuário atual
+    leiloes_do_usuario = Leilao.query.filter_by(user_id=current_user.id).all()
+
+    leiloes_info = []
+    for leilao in leiloes_do_usuario:
+        encerrado = leilao.tempo_fim < agora
+        ganhador = None
+        if encerrado:
+            # Determina o vencedor: lance com valor == lance_atual
+            vencedor_lance = Lance.query.filter_by(leilao_id=leilao.id, valor=leilao.lance_atual).first()
+            if vencedor_lance:
+                ganhador = vencedor_lance.nome
+
+        leiloes_info.append({
+            'id': leilao.id,
+            'titulo': leilao.titulo,
+            'lance_atual': leilao.lance_atual,
+            'encerrado': encerrado,
+            'ganhador': ganhador
+        })
+
+    return render_template('meus_leiloes.html', leiloes=leiloes_info)
+
 
 # Eventos SocketIO
 @socketio.on('join_leilao')
@@ -491,11 +532,22 @@ def handle_request_update(data):
         return
 
     leilao_data = serialize_leilao(leilao)
-    # Opcionalmente, incluir dados adicionais como 'historico_lances' e 'detalhes_imagens' se necessário
     emit('update_leilao', leilao_data)
 
-# Criação das tabelas
-# Removido 'db.create_all()' para evitar conflitos com Flask-Migrate
+@app.context_processor
+def inject_favicon():
+    return {
+        'favicon': """
+            <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,
+            <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='orange'>
+                <circle cx='10' cy='10' r='8'/>
+            </svg>">
+        """
+    }
+
+    
+
+    
 with app.app_context():
     db.create_all()
 

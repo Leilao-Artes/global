@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="pt-PT" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="description" content="Documentação do projeto BID FLOW - Plataforma de Leilões Exclusivos de Arte." />
+    <meta name="keywords" content="Documentação, BID FLOW, Leilões, Arte, Flask, Tailwind CSS, Python" />
+    <meta name="author" content="BID FLOW" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documentação - BID FLOW</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'luxcream': '#F9F7F2',
+                        'luxgold': '#C8A951',
+                        'luxbrown': '#5C4B45',
+                        'luxtext': '#1E1E1E',
+                    },
+                    fontFamily: {
+                        'serif': ['Merriweather', 'serif'],
+                        'sans': ['Inter', 'sans-serif'],
+                    },
+                },
+            },
+        }
+    </script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Merriweather:wght@300;400;700;900&display=swap"
+        rel="stylesheet">
+</head>
+
+<body class="bg-luxcream font-sans text-luxtext">
+
+    <!-- Cabeçalho / Navegação -->
+    <header class="fixed w-full z-20 bg-luxcream bg-opacity-90 backdrop-blur-sm border-b border-luxbrown/20">
+        <nav class="container mx-auto px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <a href="#top" class="flex items-center space-x-2 text-luxgold font-bold">
+                    <svg class="h-8 w-8" fill="currentColor" viewBox="0 0 20 20">
+                        <circle cx="10" cy="10" r="8" />
+                    </svg>
+                    <span class="font-serif text-xl tracking-wide">BID FLOW</span>
+                </a>
+                <div class="hidden md:flex items-center space-x-8 font-medium">
+                    <a href="#introducao" class="text-luxtext hover:text-luxgold transition duration-300">Introdução</a>
+                    <a href="#tecnologias"
+                        class="text-luxtext hover:text-luxgold transition duration-300">Tecnologias</a>
+                    <a href="#backend" class="text-luxtext hover:text-luxgold transition duration-300">Backend</a>
+                    <a href="#frontend" class="text-luxtext hover:text-luxgold transition duration-300">Frontend</a>
+                    <a href="#instalacao" class="text-luxtext hover:text-luxgold transition duration-300">Instalação</a>
+                    <a href="#contribuicao"
+                        class="text-luxtext hover:text-luxgold transition duration-300">Contribuição</a>
+                    <a href="#licenca" class="text-luxtext hover:text-luxgold transition duration-300">Licença</a>
+                    <a href="#agradecimentos" class="text-luxtext hover:text-luxgold transition duration-300">Agradecimentos</a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+<!-- Introdução -->
+<section id="introducao" class="relative min-h-screen flex items-center justify-center px-6 lg:px-8">
+    <!-- Imagem de Fundo com Sobreposição de Gradiente -->
+    <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('https://antasatrium.com/wp-content/uploads/2021/02/ANTAS_Vista_Estadio.png');">
+        <div class="absolute inset-0 bg-gradient-to-t from-luxbrown/80 via-luxbrown/60 to-transparent"></div>
+    </div>
+
+    <!-- Conteúdo Centralizado -->
+    <div class="relative z-10 max-w-2xl text-center">
+        <h1 class="text-5xl lg:text-6xl font-serif font-bold text-luxcream mb-6 drop-shadow-lg">
+            Documentação do Projeto <span class="text-luxgold">BID FLOW</span>
+        </h1>
+        <p class="text-lg lg:text-xl text-luxcream mb-8 drop-shadow-md">
+            Bem-vindo à documentação oficial do <span class="font-semibold">BID FLOW</span>, a tua plataforma exclusiva para leilões de arte autêntica. Este documento fornece uma visão detalhada das funcionalidades, tecnologias e estrutura do projeto, auxiliando desenvolvedores e colaboradores a compreender e contribuir eficazmente.
+        </p>
+        <a href="#tecnologias" class="inline-block bg-luxgold text-luxbrown font-semibold py-3 px-6 rounded-full shadow-lg hover:bg-luxbrown hover:text-luxcream transition duration-300">
+            Descubra Mais
+        </a>
+    </div>
+</section>
+
+
+    <!-- Tecnologias Utilizadas -->
+    <section id="tecnologias" class="py-20 bg-white">
+        <div class="container mx-auto px-6 lg:px-8">
+            <h2 class="text-3xl font-serif font-bold text-luxbrown text-center mb-12">Tecnologias Utilizadas</h2>
+            <div class="grid md:grid-cols-3 gap-12 text-center">
+                <div class="text-luxtext">
+                    <svg class="w-12 h-12 mx-auto mb-6 text-luxgold" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <h3 class="text-xl font-semibold mb-3 text-luxbrown">Flask</h3>
+                    <p class="text-gray-700">Framework web em Python utilizado para desenvolver o backend da aplicação.
+                    </p>
+                </div>
+                <div class="text-luxtext">
+                    <svg class="w-12 h-12 mx-auto mb-6 text-luxgold" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944 11.955 11.955 0 013.382 5.984 12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z">
+                        </path>
+                    </svg>
+                    <h3 class="text-xl font-semibold mb-3 text-luxbrown">SQLAlchemy</h3>
+                    <p class="text-gray-700">ORM (Object Relational Mapper) para gerir o banco de dados de forma
+                        eficiente.</p>
+                </div>
+                <div class="text-luxtext">
+                    <svg class="w-12 h-12 mx-auto mb-6 text-luxgold" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3">
+                        </path>
+                    </svg>
+                    <h3 class="text-xl font-semibold mb-3 text-luxbrown">Tailwind CSS</h3>
+                    <p class="text-gray-700">Framework CSS utilitário para criar interfaces de utilizador modernas e
+                        responsivas.</p>
+                </div>
+                <div class="text-luxtext">
+                    <svg class="w-12 h-12 mx-auto mb-6 text-luxgold" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <h3 class="text-xl font-semibold mb-3 text-luxbrown">Flask-SocketIO</h3>
+                    <p class="text-gray-700">Extensão para Flask que permite comunicação em tempo real utilizando
+                        WebSockets.</p>
+                </div>
+                <div class="text-luxtext">
+                    <svg class="w-12 h-12 mx-auto mb-6 text-luxgold" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944 11.955 11.955 0 013.382 5.984 12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z">
+                        </path>
+                    </svg>
+                    <h3 class="text-xl font-semibold mb-3 text-luxbrown">SQLite</h3>
+                    <p class="text-gray-700">Sistema de gestão de banco de dados relacional utilizado para
+                        armazenar dados da aplicação.</p>
+                </div>
+                <div class="text-luxtext">
+                    <svg class="w-12 h-12 mx-auto mb-6 text-luxgold" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <h3 class="text-xl font-semibold mb-3 text-luxbrown">Werkzeug</h3>
+                    <p class="text-gray-700">Biblioteca WSGI para Python usada como base para o Flask.</p>
+                </div>
+            </div>
+        </section>
+
+    <!-- Visão Geral do Projeto -->
+    <section id="visao" class="py-20 bg-luxcream">
+        <div class="container mx-auto px-6 lg:px-8">
+            <h2 class="text-3xl font-serif font-bold text-luxbrown text-center mb-12">Visão Geral do Projeto</h2>
+            <div class="flex flex-col lg:flex-row lg:space-x-12">
+                <div class="lg:w-1/2 mb-8 lg:mb-0 flex justify-center items-center">
+                    <a href="#top" class="flex flex-col items-center space-y-2 text-luxgold font-bold">
+                        <svg class="h-16 w-16" fill="currentColor" viewBox="0 0 20 20">
+                            <circle cx="10" cy="10" r="8" />
+                        </svg>
+                        <span class="font-serif text-2xl tracking-wide">BID FLOW</span>
+                    </a>
+                </div>
+                <div class="lg:w-1/2">
+                    <p class="text-lg text-gray-700 mb-4">
+                        A visão do projeto <span class="text-luxgold font-semibold">BID FLOW</span> foi fundamentalmente
+                        fomentar a integração da equipa, proporcionando um ambiente onde todos pudessem aprender novas
+                        tecnologias e colaborar na criação de uma plataforma robusta e intuitiva.
+                    </p>
+                    <p class="text-lg text-gray-700 mb-4">
+                        Além do desenvolvimento técnico, o projeto visou fortalecer os laços entre os membros da equipa,
+                        promovendo a troca de conhecimentos e a construção de novas amizades. Esta interação contínua
+                        contribuiu para um ambiente de trabalho mais harmonioso e produtivo.
+                    </p>
+                    <p class="text-lg text-gray-700">
+                        Ao longo do desenvolvimento do <span class="text-luxgold font-semibold">BID FLOW</span>, alcançámos
+                        com sucesso os objetivos estabelecidos, resultando numa plataforma eficiente para leilões de arte
+                        autêntica e numa equipa mais coesa e capacitada.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Backend -->
+    <section id="backend" class="py-20 bg-white">
+        <div class="container mx-auto px-6 lg:px-8">
+            <h2 class="text-3xl font-serif font-bold text-luxbrown text-center mb-12">Backend</h2>
+            <div class="space-y-6">
+                <div>
+                    <h3 class="text-2xl font-semibold text-luxgold">Estrutura do Backend</h3>
+                    <p class="text-gray-700">
+                        O backend do BID FLOW é desenvolvido em <strong>Flask</strong>, um framework web leve em Python.
+                        Utiliza <strong>SQLAlchemy</strong> para a gestão do banco de dados e
+                        <strong>Flask-SocketIO</strong> para funcionalidades em tempo real.
+                    </p>
+                </div>
+                <div>
+                    <h3 class="text-2xl font-semibold text-luxgold">Configurações Gerais</h3>
+                    <p class="text-gray-700">
+                        As configurações iniciais incluem a definição da chave secreta, configuração do banco de dados
+                        SQLite e inicialização de extensões como SQLAlchemy, Flask-Migrate e Flask-Login.
+                    </p>
+                    <pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto">
+from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
+from flask_login import LoginManager
+from flask_socketio import SocketIO
+
+app = Flask(__name__)
+app.secret_key = 'sua_chave_secreta_aqui'
+
+# Configuração do Banco de Dados SQLite
+basedir = os.path.abspath(os.path.dirname(__file__))
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'leiloes.db')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# Inicialização do SQLAlchemy e Migrate
+db = SQLAlchemy(app)
+migrate = Migrate(app, db)
+
+# Inicialização do SocketIO para comunicação em tempo real
+socketio = SocketIO(app, cors_allowed_origins='*')
+
+# Configuração do Flask-Login
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'
+login_manager.login_message = "Por favor, faça login para acessar esta página."
+login_manager.login_message_category = "info"
+                    </pre>
+                </div>
+                <div>
+                    <h3 class="text-2xl font-semibold text-luxgold">Modelos de Dados</h3>
+                    <p class="text-gray-700">
+                        Os modelos de dados são definidos utilizando SQLAlchemy, representando as entidades principais
+                        do sistema: Utilizador, Leilão, Lance e Imagem.
+                    </p>
+                    <pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto">
+from flask_login import UserMixin
+from werkzeug.security import generate_password_hash, check_password_hash
+from datetime import datetime
+from uuid import uuid4
+
+class User(UserMixin, db.Model):
+    """Modelo para os utilizadores do sistema."""
+    __tablename__ = 'users'
+    id = db.Column(db.String, primary_key=True, default=lambda: str(uuid4()))
+    name = db.Column(db.String, nullable=False)
+    email = db.Column(db.String, unique=True, nullable=False)
+    password_hash = db.Column(db.String, nullable=False)
+    
+    # Relação com lances
+    lances = db.relationship('Lance', backref='user', lazy=True)
+
+    def set_password(self, password):
+        """Define o hash da palavra-passe para o utilizador."""
+        self.password_hash = generate_password_hash(password)
+
+    def check_password(self, password):
+        """Verifica se a palavra-passe fornecida corresponde ao hash armazenado."""
+        return check_password_hash(self.password_hash, password)
+
+class Leilao(db.Model):
+    """Modelo para os leilões."""
+    __tablename__ = 'leiloes'
+    id = db.Column(db.String, primary_key=True)
+    titulo = db.Column(db.String, nullable=False)
+    lance_atual = db.Column(db.Float, nullable=False)
+    avaliacoes = db.Column(db.Integer, default=0)
+    media_avaliacoes = db.Column(db.Float, default=5.0)
+    descricao = db.Column(db.Text, nullable=False)
+    tempo_inicio = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    tempo_fim = db.Column(db.DateTime, nullable=False)
+    local_de_entrega = db.Column(db.String, nullable=False)
+    ano_fabricacao = db.Column(db.Integer, nullable=False)
+    condicao = db.Column(db.String, nullable=False)
+    total_lances = db.Column(db.Integer, default=0)
+    user_id = db.Column(db.String, db.ForeignKey('users.id'), nullable=False)
+
+    historico_lances = db.relationship('Lance', backref='leilao', cascade='all, delete-orphan', lazy=True)
+    detalhes_imagens = db.relationship('Imagem', backref='leilao', cascade='all, delete-orphan', lazy=True)
+
+class Lance(db.Model):
+    """Modelo para os lances nos leilões."""
+    __tablename__ = 'lances'
+    id = db.Column(db.Integer, primary_key=True)
+    nome = db.Column(db.String, nullable=False)
+    valor = db.Column(db.Float, nullable=False)
+    tempo = db.Column(db.String, nullable=False, default='Agora')
+    imagem = db.Column(db.String, nullable=False)
+    leilao_id = db.Column(db.String, db.ForeignKey('leiloes.id'), nullable=False)
+    user_id = db.Column(db.String, db.ForeignKey('users.id'), nullable=True)
+
+class Imagem(db.Model):
+    """Modelo para as imagens associadas aos leilões."""
+    __tablename__ = 'imagens'
+    id = db.Column(db.Integer, primary_key=True)
+    url = db.Column(db.String, nullable=False)
+    alt = db.Column(db.String, nullable=False)
+    leilao_id = db.Column(db.String, db.ForeignKey('leiloes.id'), nullable=False)
+                    </pre>
+                </div>
+                <div>
+                    <h3 class="text-2xl font-semibold text-luxgold">Rotas e Funcionalidades</h3>
+                    <p class="text-gray-700">
+                        As rotas principais da aplicação incluem autenticação de utilizadores, gestão de leilões,
+                        participação em lances e comunicação em tempo real. Abaixo estão algumas das principais rotas:
+                    </p>
+                    <ul class="list-disc list-inside text-gray-700">
+                        <li><strong>/login</strong> - Autenticação de utilizadores.</li>
+                        <li><strong>/register</strong> - Registo de novos utilizadores.</li>
+                        <li><strong>/dashboard</strong> - Painel principal para gestão de leilões.</li>
+                        <li><strong>/leilao/&lt;leilao_id&gt;</strong> - Inspeção e participação num leilão
+                            específico.</li>
+                        <li><strong>/criar-leilao</strong> - Criação de novos leilões.</li>
+                        <li><strong>/meus-lances</strong> - Visualização dos lances realizados pelo utilizador.</li>
+                        <li><strong>/meus-leiloes</strong> - Visualização dos leilões criados pelo utilizador.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Frontend -->
+    <section id="frontend" class="py-20 bg-luxcream">
+        <div class="container mx-auto px-6 lg:px-8">
+            <h2 class="text-3xl font-serif font-bold text-luxbrown text-center mb-12">Frontend</h2>
+            <div class="space-y-6">
+                <div>
+                    <h3 class="text-2xl font-semibold text-luxgold">Estrutura das Páginas</h3>
+                    <p class="text-gray-700">
+                        O frontend do BID FLOW é desenvolvido utilizando <strong>HTML</strong>, <strong>CSS</strong> com
+                        <strong>Tailwind CSS</strong> e <strong>JavaScript</strong>. A interface é projetada para ser
+                        responsiva e intuitiva, proporcionando uma excelente experiência ao utilizador.
+                    </p>
+                </div>
+                <div>
+                    <h3 class="text-2xl font-semibold text-luxgold">Design e Estilo</h3>
+                    <p class="text-gray-700">
+                        As cores predominantes utilizadas no design são:
+                    </p>
+                    <ul class="list-disc list-inside text-gray-700">
+                        <li><span class="text-luxcream">Lux Cream</span> - #F9F7F2</li>
+                        <li><span class="text-luxgold">Lux Gold</span> - #C8A951</li>
+                        <li><span class="text-luxbrown">Lux Brown</span> - #5C4B45</li>
+                        <li><span class="text-luxtext">Lux Text</span> - #1E1E1E</li>
+                    </ul>
+                    <p class="text-gray-700 mt-4">
+                        As fontes utilizadas são:
+                    </p>
+                    <ul class="list-disc list-inside text-gray-700">
+                        <li><strong>Inter</strong> - Para textos principais e interfaces.</li>
+                        <li><strong>Merriweather</strong> - Para títulos e elementos destacados.</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-2xl font-semibold text-luxgold">Componentes Principais</h3>
+                    <ul class="list-disc list-inside text-gray-700">
+                        <li><strong>Header:</strong> Navegação fixa com links para as principais secções.</li>
+                        <li><strong>Hero Section:</strong> Apresentação com chamadas para ação.</li>
+                        <li><strong>Recursos:</strong> Destaque das funcionalidades chave.</li>
+                        <li><strong>Leilões Ativos:</strong> Lista dos leilões em andamento.</li>
+                        <li><strong>Depoimentos:</strong> Feedback de clientes e utilizadores.</li>
+                        <li><strong>Footer:</strong> Informações de contacto e links rápidos.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Instalação -->
+    <section id="instalacao" class="py-20 bg-white">
+        <div class="container mx-auto px-6 lg:px-8">
+            <h2 class="text-3xl font-serif font-bold text-luxbrown text-center mb-12">Instalação e Configuração</h2>
+            <div class="space-y-6">
+                <div>
+                    <h3 class="text-2xl font-semibold text-luxgold">Pré-requisitos</h3>
+                    <ul class="list-disc list-inside text-gray-700">
+                        <li><strong>Python 3.8+</strong></li>
+                        <li><strong>pip</strong> - Gestor de pacotes do Python.</li>
+                        <li><strong>Virtualenv</strong> - Para criação de ambientes virtuais.</li>
+                        <li><strong>Node.js</strong> - Para gestão de pacotes frontend (opcional).</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-2xl font-semibold text-luxgold">Passo a Passo</h3>
+                    <ol class="list-decimal list-inside text-gray-700">
+                        <li><strong>Clonar o Repositório:</strong>
+                            <pre
+                                class="bg-gray-100 p-2 rounded-lg mt-2">git clone https://github.com/Leilao-Artes/global</pre>
+                        </li>
+                        <li><strong>Navegar para o Diretório do Projeto:</strong>
+                            <pre class="bg-gray-100 p-2 rounded-lg mt-2">cd bid-flow</pre>
+                        </li>
+                        <li><strong>Criar e Ativar um Ambiente Virtual:</strong>
+                            <pre class="bg-gray-100 p-2 rounded-lg mt-2">
+python -m venv venv
+source venv/bin/activate  # No Windows: venv\Scripts\activate
+                            </pre>
+                        </li>
+                        <li><strong>Instalar as Dependências:</strong>
+                            <pre class="bg-gray-100 p-2 rounded-lg mt-2">pip install -r requirements.txt</pre>
+                        </li>
+                        <li><strong>Configurar Variáveis de Ambiente:</strong>
+                            <pre class="bg-gray-100 p-2 rounded-lg mt-2">
+export FLASK_APP=app.py
+export FLASK_ENV=development
+                            </pre>
+                        </li>
+                        <li><strong>Inicializar o Banco de Dados:</strong>
+                            <pre class="bg-gray-100 p-2 rounded-lg mt-2">
+flask db init
+flask db migrate -m "Primeira Migração."
+flask db upgrade
+                            </pre>
+                        </li>
+                        <li><strong>Executar a Aplicação:</strong>
+                            <pre class="bg-gray-100 p-2 rounded-lg mt-2">python app.py</pre>
+                        </li>
+                    </ol>
+                </div>
+                <div>
+                    <h3 class="text-2xl font-semibold text-luxgold">Configuração do Banco de Dados</h3>
+                    <p class="text-gray-700">
+                        A aplicação utiliza SQLite como banco de dados por defeito. Para configurar um banco de dados
+                        diferente, atualize a URI na configuração do Flask:
+                    </p>
+                    <pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto">
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'leiloes.db')
+                    </pre>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contribuição -->
+    <section id="contribuicao" class="py-20 bg-luxcream">
+        <div class="container mx-auto px-6 lg:px-8">
+            <h2 class="text-3xl font-serif font-bold text-luxbrown text-center mb-12">Como Contribuir</h2>
+            <div class="space-y-6">
+                <div>
+                    <h3 class="text-2xl font-semibold text-luxgold">Passo a Passo para Contribuição</h3>
+                    <ol class="list-decimal list-inside text-gray-700">
+                        <li><strong>Fork</strong> o repositório no GitHub.</li>
+                        <li><strong>Clone</strong> o seu fork para a sua máquina local:
+                            <pre
+                                class="bg-gray-100 p-2 rounded-lg mt-2">git clone https://github.com/Leilao-Artes/global</pre>
+                        </li>
+                        <li><strong>Crie uma nova branch</strong> para a sua funcionalidade ou correção:
+                            <pre class="bg-gray-100 p-2 rounded-lg mt-2">git checkout -b main</pre>
+                        </li>
+                        <li><strong>Faça as suas alterações</strong> no código.</li>
+                        <li><strong>Adicione e commite</strong> as suas mudanças:
+                            <pre class="bg-gray-100 p-2 rounded-lg mt-2">
+git add .
+git commit -m "Descrição das alterações"
+                            </pre>
+                        </li>
+                        <li><strong>Envie</strong> a sua branch para o GitHub:
+                            <pre class="bg-gray-100 p-2 rounded-lg mt-2">git push origin main</pre>
+                        </li>
+                        <li><strong>Abra um Pull Request</strong> no repositório original.</li>
+                    </ol>
+                </div>
+                <div>
+                    <h3 class="text-2xl font-semibold text-luxgold">Regras de Contribuição</h3>
+                    <ul class="list-disc list-inside text-gray-700">
+                        <li>Respeite o código de conduta do projeto.</li>
+                        <li>Escreva código limpo e bem documentado.</li>
+                        <li>Teste as suas alterações antes de submeter.</li>
+                        <li>Forneça descrições claras e detalhadas nas suas Pull Requests.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Agradecimentos -->
+    <section id="agradecimentos" class="py-20 bg-white">
+        <div class="container mx-auto px-6 lg:px-8">
+            <h2 class="text-3xl font-serif font-bold text-luxbrown text-center mb-12">Agradecimentos</h2>
+            <div class="space-y-6">
+                <p class="text-lg text-gray-700">
+                    Gostaríamos de expressar o nosso profundo agradecimento ao <strong>Professor Leonardo</strong> por seu papel fundamental como <em>Scrum Master</em>. A sua orientação, dedicação e expertise foram essenciais para o sucesso deste projeto, promovendo uma colaboração eficaz e garantindo que a nossa equipa mantivesse o foco e a eficiência durante todo o desenvolvimento.
+                </p>
+                <p class="text-lg text-gray-700">
+                    Agradecemos pela sua liderança inspiradora e por fomentar um ambiente de trabalho harmonioso e produtivo.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Licença -->
+    <section id="licenca" class="py-20 bg-luxcream">
+        <div class="container mx-auto px-6 lg:px-8">
+            <h2 class="text-3xl font-serif font-bold text-luxbrown text-center mb-12">Licença</h2>
+            <div class="space-y-6">
+                <p class="text-gray-700">
+                    Este projeto está licenciado sob a licença MIT. Veja o ficheiro <a href="#"
+                        class="text-luxgold underline">LICENSE</a> para mais detalhes.
+                </p>
+                <pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto">
+MIT License
+
+Copyright (c) 2024 Equipa 2 "Bid Flow"
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+                </pre>
+            </div>
+        </div>
+    </section>
+
+    <!-- Rodapé -->
+    <footer class="bg-luxcream text-luxtext py-10 border-t border-luxbrown/30">
+        <div class="container mx-auto px-6 lg:px-8">
+            <div class="flex flex-wrap justify-between mb-8">
+                <div class="w-full md:w-1/4 mb-6 md:mb-0">
+                    <h3 class="text-xl font-serif font-bold mb-4 text-luxbrown">BID FLOW</h3>
+                    <p class="leading-relaxed text-gray-700">A tua plataforma de referência para leilões de arte
+                        autêntica, onde transparência, segurança e requinte se encontram.</p>
+                </div>
+                <div class="w-full md:w-1/4 mb-6 md:mb-0">
+                    <h3 class="text-xl font-serif font-bold mb-4 text-luxbrown">Links Rápidos</h3>
+                    <ul class="space-y-2 text-gray-700">
+                        <li><a href="#introducao" class="hover:text-luxgold transition duration-300">Introdução</a></li>
+                        <li><a href="#tecnologias" class="hover:text-luxgold transition duration-300">Tecnologias</a>
+                        </li>
+                        <li><a href="#backend" class="hover:text-luxgold transition duration-300">Backend</a></li>
+                        <li><a href="#frontend" class="hover:text-luxgold transition duration-300">Frontend</a></li>
+                        <li><a href="#instalacao" class="hover:text-luxgold transition duration-300">Instalação</a></li>
+                        <li><a href="#contribuicao" class="hover:text-luxgold transition duration-300">Contribuição</a>
+                        </li>
+                        <li><a href="#licenca" class="hover:text-luxgold transition duration-300">Licença</a></li>
+                        <li><a href="#agradecimentos" class="hover:text-luxgold transition duration-300">Agradecimentos</a></li>
+                    </ul>
+                </div>
+
+                <div class="border-t border-luxbrown/20 mt-8 pt-8 text-center text-gray-500">
+                    <p>&copy; 2024 BID FLOW. Todos os direitos reservados.</p>
+                </div>
+            </div>
+        </footer>
+
+</body>
+
+</html>
