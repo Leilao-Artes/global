@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block title %}Criar Leilão{% endblock %}
+{% block content %}
+<div class="bg-white p-6 rounded shadow-md">
+    <h1 class="text-2xl font-bold mb-4">Criar Novo Leilão</h1>
+    <form method="post">
+        <div class="mb-4">
+            <label class="block text-gray-700">Título</label>
+            <input name="titulo" type="text" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" placeholder="Título do Leilão">
+        </div>
+        <div class="mb-4">
+            <label class="block text-gray-700">Lance Inicial (€)</label>
+            <input name="lance_inicial" type="text" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" placeholder="Ex: 1000">
+        </div>
+        <div class="mb-4">
+            <label class="block text-gray-700">Descrição</label>
+            <textarea name="descricao" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" placeholder="Descrição detalhada da arte"></textarea>
+        </div>
+        <div class="mb-4">
+            <label class="block text-gray-700">Local de Entrega</label>
+            <input name="local_de_entrega" type="text" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" placeholder="Ex: Paris, França">
+        </div>
+        <div class="mb-4">
+            <label class="block text-gray-700">Ano de Fabricação</label>
+            <input name="ano_fabricacao" type="text" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" placeholder="Ex: 1900">
+        </div>
+        <div class="mb-4">
+            <label class="block text-gray-700">Condição</label>
+            <input name="condicao" type="text" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" placeholder="Ex: Excelente">
+        </div>
+        <div class="mb-4">
+            <label class="block text-gray-700">Duração do Leilão (horas)</label>
+            <input name="horas" type="text" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" placeholder="Ex: 5 (padrão se vazio)">
+        </div>
+        <button type="submit" class="px-4 py-2 bg-luxgold text-white rounded hover:bg-yellow-600">Criar</button>
+    </form>
+</div>
+{% endblock %}

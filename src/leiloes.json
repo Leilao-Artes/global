@@ -1,0 +1,34 @@
+[
+    {
+        "id": "72c91f51-a82d-44d2-bb3c-f8781f449d85",
+        "titulo": "e2",
+        "lance_atual": 123.0,
+        "avaliacoes": 0,
+        "media_avaliacoes": 5.0,
+        "descricao": "123",
+        "tempo_fim": "2024-12-19 15:21:14",
+        "local_de_entrega": "Cona",
+        "ano_fabricacao": 19000,
+        "condicao": "pESSIMA",
+        "historico_lances": [],
+        "detalhes_imagens": [
+            {
+                "url": "https://ui-avatars.com/api/?name=e2&background=random&color=fff",
+                "alt": "Imagem principal de e2"
+            },
+            {
+                "url": "https://ui-avatars.com/api/?name=e2+1&background=random&color=fff",
+                "alt": "Imagem detalhada de e2"
+            },
+            {
+                "url": "https://ui-avatars.com/api/?name=e2+2&background=random&color=fff",
+                "alt": "Imagem detalhada de e2"
+            },
+            {
+                "url": "https://ui-avatars.com/api/?name=e2+3&background=random&color=fff",
+                "alt": "Imagem detalhada de e2"
+            }
+        ],
+        "total_lances": 0
+    }
+]
